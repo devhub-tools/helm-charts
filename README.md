@@ -24,8 +24,7 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
       DB_HOSTNAME:
       DB_USERNAME:
       DB_PASSWORD:
-      DB_SSL: "false" # set to "true" if you want to enable SSL
-      LICENSE_KEY: # use api key created in first step
+      DB_SSL: "false" # set to `true` if you want to enable SSL
       SECRET_KEY_BASE: # generate random secure value
 
       # GitHub app credentials

@@ -47,8 +47,32 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: PHX_HOST
+            - name: APP_HOST
               value: {{ .Values.devhub.host }}
+            - name: LOGIN_METHOD
+              value: {{ .Values.devhub.loginMethod }}
+          volumeMounts:
+          - name: config
+            mountPath: "/etc/secrets"
+            readOnly: true
+          {{- with .Values.volumeMounts }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+      initContainers:
+        - name: devhub-migrations
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - ./bin/devhub
+            - eval
+            - DevHub.Release.migrate()
+          env:
+            - name: APP_HOST
+              value: {{ .Values.devhub.host }}
+            - name: LOGIN_METHOD
+              value: {{ .Values.devhub.loginMethod }}
           volumeMounts:
           - name: config
             mountPath: "/etc/secrets"

@@ -8,6 +8,7 @@ devhub:
   # you must create a secret for configuration values
   configSecretName: devhub-config
   host: devhub.example.com
+  loginMethod: github # or oidc
 
 image:
   repository: ghcr.io/devhub-tools/devhub
@@ -84,3 +85,7 @@ affinity: {}
 volumes: []
 
 volumeMounts: []
+
+env:
+# - name: APP_HOST
+#   value: devhub.example.com
