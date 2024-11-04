@@ -73,6 +73,8 @@ spec:
               value: {{ .Values.devhub.host }}
             - name: LOGIN_METHOD
               value: {{ .Values.devhub.loginMethod }}
+            - name: AGENT_CONFIG_FILE
+              value: /etc/secrets/agent-config.json
           volumeMounts:
           - name: config
             mountPath: "/etc/secrets"
