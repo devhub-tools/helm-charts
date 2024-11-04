@@ -6,6 +6,8 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
 
 1. Setup a postgres database and take note of credentials.
 
+1. Create a private GitHub app `https://github.com/organizations/${GITHUB_ORG}/settings/apps/new`
+
 1. create k8s secret
 
     ```yaml
