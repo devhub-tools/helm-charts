@@ -2,8 +2,6 @@
 
 Instructions for running self hosted install of DevHub. Currently only k8s install is supported, reach out to support@devhub.sh if you would like additional methods supported.
 
-*Requires Enterprise plan.*
-
 ## Installation
 
 1. Setup a postgres database and take note of credentials.
@@ -27,16 +25,10 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
       DB_SSL: "false" # set to `true` if you want to enable SSL
       SECRET_KEY_BASE: # generate random secure value
 
-      # GitHub app credentials
+      # GitHub app credentials (for sign in)
+      GITHUB_APP_ID:
       GITHUB_CLIENT_ID:
       GITHUB_CLIENT_SECRET:
-      GITHUB_WEBHOOK_SECRET:
-      GITHUB_PRIVATE_KEY:
-
-      # Linear app credentials
-      LINEAR_CLIENT_ID:
-      LINEAR_CLIENT_SECRET:
-      LINEAR_WEBHOOK_SECRET:
 
       ### OPTIONAL ###
 
@@ -44,6 +36,21 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
       ca.cert:
       client.key:
       client.cert:
+
+      # GitHub app credentials (for metric syncing)
+      GITHUB_WEBHOOK_SECRET:
+      GITHUB_PRIVATE_KEY:
+
+      # Linear app credentials (for metric syncing)
+      LINEAR_CLIENT_ID:
+      LINEAR_CLIENT_SECRET:
+      LINEAR_WEBHOOK_SECRET:
+
+      # if configuring agents
+      SHARED_ENCRYPTION_KEY: # 32 random bytes base64 encoded (used for encrypting communication between the server and agents)
+
+      # if configuring workload identity with Google Cloud
+      GOOGLE_PRIVATE_KEY: # generate a private key with `openssl genrsa -out privkey.pem 3072`
     ```
 
 1. Install with helm
@@ -51,6 +58,7 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
     ```bash
     # make sure to use helm 3.8.0 or later, or set `export HELM_EXPERIMENTAL_OCI=1`
     helm install devhub oci://ghcr.io/devhub-tools/helm-charts/devhub \
+      --set devhub.host=devhub.example.com \
       --version x.x.x \
       --namespace devhub
     ```
