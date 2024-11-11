@@ -1,6 +1,6 @@
 # DevHub
 
-Instructions for running self hosted install of DevHub. Currently only k8s install is supported, reach out to support@devhub.sh if you would like additional methods supported.
+Instructions for running self hosted install of DevHub. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 
 ## Installation
 
