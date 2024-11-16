@@ -16,6 +16,12 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+queryParser:
+  image:
+    repository: ghcr.io/devhub-tools/query-parser
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

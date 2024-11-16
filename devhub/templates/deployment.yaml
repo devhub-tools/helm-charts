@@ -65,6 +65,15 @@ spec:
           {{- toYaml . | nindent 10 }}
           {{- end }}
       {{- if not .Values.devhub.agent }}
+        - name: query-parser
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.queryParser.image.repository }}:{{ .Values.queryParser.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 50051
+              protocol: TCP
       initContainers:
         - name: devhub-migrations
           securityContext:

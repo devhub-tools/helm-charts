@@ -7,6 +7,11 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
 1. Setup a postgres database and take note of credentials.
 
 1. Create a private GitHub app `https://github.com/organizations/${GITHUB_ORG}/settings/apps/new`
+    1. callback url: `https://devhub.example.com/auth/github/callback`
+    1. setup url `https://devhub.example.com/github-setup`
+    1. webhook url: `https://devhub.example.com/webhook/github`
+    1. generate webhook secret and save it
+    1. Permissions needed for metrics: contents read, deployments read, pull requests read
 
 1. create k8s secret
 
@@ -39,7 +44,7 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
       client.key:
       client.cert:
 
-      # GitHub app credentials (for metric syncing)
+      # GitHub app credentials (for metric syncing and TerraDesk triggers)
       GITHUB_WEBHOOK_SECRET:
       GITHUB_PRIVATE_KEY:
 
