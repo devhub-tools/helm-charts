@@ -51,6 +51,10 @@ spec:
               value: {{ .Values.devhub.host }}
             - name: LOGIN_METHOD
               value: {{ .Values.devhub.loginMethod }}
+            {{- with .Values.devhub.proxyInstructionsHtmlPath }}
+            - name: PROXY_INSTRUCTIONS_HTML_PATH
+              value: {{ . | quote }}
+            {{- end }}
             {{- if .Values.devhub.agent }}
             - name: AGENT
               value: "true"
