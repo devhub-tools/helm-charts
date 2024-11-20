@@ -73,10 +73,19 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.queryParser.image.repository }}:{{ .Values.queryParser.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.queryParser.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 50051
+              protocol: TCP
+        - name: request-tracer
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.requestTracer.image.repository }}:{{ .Values.requestTracer.image.tag }}"
+          imagePullPolicy: {{ .Values.requestTracer.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 50052
               protocol: TCP
       initContainers:
         - name: devhub-migrations
