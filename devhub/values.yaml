@@ -60,6 +60,11 @@ service:
   type: ClusterIP
   port: 80
 
+proxy:
+  service:
+    create: true
+    type: ClusterIP
+
 ingress:
   enabled: false
   className: ""

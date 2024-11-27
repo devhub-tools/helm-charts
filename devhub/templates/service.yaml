@@ -11,3 +11,23 @@ spec:
       protocol: TCP
       name: http
   selector: {{- include "DevHub.selectorLabels" . | nindent 4 }}
+{{- if .Values.proxy.service.create }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "DevHub.fullname" . }}-proxy
+  labels:
+    {{- include "DevHub.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.proxy.service.type }}
+  ports:
+    - port: 5432
+      targetPort: 54320
+      {{- with .Values.proxy.service.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
+      protocol: TCP
+  selector:
+    {{- include "DevHub.selectorLabels" $ | nindent 4 }}
+{{- end }}
