@@ -101,11 +101,6 @@ spec:
             - ./bin/devhub
             - eval
             - DevHub.Release.migrate()
-          env:
-            - name: APP_HOST
-              value: {{ .Values.devhub.host }}
-            - name: LOGIN_METHOD
-              value: {{ .Values.devhub.loginMethod }}
           volumeMounts:
           - name: config
             mountPath: "/etc/secrets"
