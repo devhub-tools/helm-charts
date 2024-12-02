@@ -29,6 +29,25 @@ requestTracer:
     tag: v1.0.0
     pullPolicy: IfNotPresent
 
+postgresql:
+  enabled: true
+  auth:
+    database: devhub
+    username: devhub
+    existingSecret: devhub-config
+    secretKeys:
+      adminPasswordKey: DB_PASSWORD
+      userPasswordKey: DB_PASSWORD
+
+service:
+  type: ClusterIP
+  port: 80
+
+proxy:
+  service:
+    create: true
+    type: ClusterIP
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -56,15 +75,6 @@ securityContext:
   runAsUser: 1000
   seccompProfile:
     type: RuntimeDefault
-
-service:
-  type: ClusterIP
-  port: 80
-
-proxy:
-  service:
-    create: true
-    type: ClusterIP
 
 ingress:
   enabled: false
