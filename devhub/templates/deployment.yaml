@@ -49,8 +49,6 @@ spec:
           env:
             - name: APP_HOST
               value: {{ .Values.devhub.host }}
-            - name: LOGIN_METHOD
-              value: {{ .Values.devhub.loginMethod }}
             {{- with .Values.devhub.proxyCommand }}
             - name: PROXY_COMMAND
               value: {{ . | quote }}
