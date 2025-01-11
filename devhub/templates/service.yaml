@@ -6,28 +6,12 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: 80
       targetPort: http
       protocol: TCP
       name: http
-  selector: {{- include "DevHub.selectorLabels" . | nindent 4 }}
-{{- if .Values.proxy.service.create }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "DevHub.fullname" . }}-proxy
-  labels:
-    {{- include "DevHub.labels" . | nindent 4 }}
-spec:
-  type: {{ .Values.proxy.service.type }}
-  ports:
     - port: 5432
-      targetPort: 54320
-      {{- with .Values.proxy.service.nodePort }}
-      nodePort: {{ . }}
-      {{- end }}
+      targetPort: postgres-proxy
       protocol: TCP
-  selector:
-    {{- include "DevHub.selectorLabels" $ | nindent 4 }}
-{{- end }}
+      name: postgres-proxy
+  selector: {{- include "DevHub.selectorLabels" . | nindent 4 }}

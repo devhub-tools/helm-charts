@@ -33,7 +33,6 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
       SECRET_KEY_BASE: # generate random secure value
 
       # GitHub app credentials (for sign in)
-      GITHUB_APP_ID:
       GITHUB_CLIENT_ID:
       GITHUB_CLIENT_SECRET:
 

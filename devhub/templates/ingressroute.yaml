@@ -1,0 +1,38 @@
+{{- if .Values.ingressRoute.enabled -}}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "DevHub.fullname" . }}-http
+  labels:
+    {{- include "DevHub.labels" $ | nindent 4 }}
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`{{ .Values.devhub.host }}`)
+      priority: 10
+      services:
+      - name: {{ include "DevHub.fullname" . }}
+        port: http
+        passHostHeader: true
+  tls:
+    {{- toYaml .Values.ingressRoute.tls | nindent 4 }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: {{ include "DevHub.fullname" . }}-postgres-proxy
+  labels:
+    {{- include "DevHub.labels" $ | nindent 4 }}
+spec:
+  entryPoints:
+    - postgres
+  routes:
+    - match: HostSNI(`*`)
+      services:
+      - name: {{ include "DevHub.fullname" . }}
+        port: postgres-proxy
+{{- end }}
