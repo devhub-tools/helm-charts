@@ -36,6 +36,9 @@ spec:
             - name: http
               containerPort: 4000
               protocol: TCP
+            - name: postgres-proxy
+              containerPort: 54320
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /_health
@@ -49,8 +52,12 @@ spec:
           env:
             - name: APP_HOST
               value: {{ .Values.devhub.host }}
-            - name: LOGIN_METHOD
-              value: {{ .Values.devhub.loginMethod }}
+            - name: APP_VERSION
+              value: {{ .Values.image.tag | default .Chart.AppVersion }}
+            {{- with .Values.devhub.auth.emailHeader }}
+            - name: AUTH_EMAIL_HEADER
+              value: {{ . | quote }}
+            {{- end }}
             {{- with .Values.devhub.proxyCommand }}
             - name: PROXY_COMMAND
               value: {{ . | quote }}
@@ -101,11 +108,8 @@ spec:
             - ./bin/devhub
             - eval
             - DevHub.Release.migrate()
-          env:
-            - name: APP_HOST
-              value: {{ .Values.devhub.host }}
-            - name: LOGIN_METHOD
-              value: {{ .Values.devhub.loginMethod }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
           - name: config
             mountPath: "/etc/secrets"

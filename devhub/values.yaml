@@ -8,7 +8,8 @@ devhub:
   # you must create a secret for configuration values
   configSecretName: devhub-config
   host: devhub.example.com
-  loginMethod: github # or oidc
+  auth:
+    emailHeader: ""
 
 image:
   repository: ghcr.io/devhub-tools/devhub
