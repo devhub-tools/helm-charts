@@ -33,11 +33,9 @@ postgresql:
   enabled: true
   auth:
     database: devhub
-    username: devhub
     existingSecret: devhub-config
     secretKeys:
       adminPasswordKey: DB_PASSWORD
-      userPasswordKey: DB_PASSWORD
 
 service:
   type: ClusterIP
