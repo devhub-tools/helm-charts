@@ -13,8 +13,9 @@
 1. Install with helm
 
     ```bash
-    # make sure to use helm 3.8.0 or later, or set `export HELM_EXPERIMENTAL_OCI=1`
-    helm install devhub oci://ghcr.io/devhub-tools/helm-charts/devhub \
+    helm repo add devhub https://devhub-tools.github.io/helm-charts
+
+    helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
       --version 2.0.0 \
       --namespace devhub
@@ -53,7 +54,9 @@
 1. Install helm with the postgres flag disabled
 
     ```bash
-    helm install devhub-agent oci://ghcr.io/devhub-tools/helm-charts/devhub \
+    helm repo add devhub https://devhub-tools.github.io/helm-charts
+
+    helm install devhub devhub/devhub \
       --set devhub.existingSecret=devhub-config \
       --set devhub.host=devhub.example.com \
       --set postgresql.enabled=false \
@@ -79,7 +82,9 @@
 1. Create another helm installation and set the agent flag
 
     ```bash
-    helm install devhub-agent oci://ghcr.io/devhub-tools/helm-charts/devhub \
+    helm repo add devhub https://devhub-tools.github.io/helm-charts
+
+    helm install devhub-agent devhub/devhub \
       --set devhub.existingSecret=devhub-config \
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
