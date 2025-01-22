@@ -5,15 +5,19 @@
 replicaCount: 1
 
 devhub:
+  # -- Set to true if setting up an agent.
   agent: false
+  # -- See instructions for setting up secret to override application config.
   existingSecretName: ""
+  # -- The hostname of your devhub instance.
   host: devhub.example.com
   auth:
+    # -- Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login.
     emailHeader: ""
 
 image:
   repository: ghcr.io/devhub-tools/devhub
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
@@ -29,8 +33,8 @@ requestTracer:
     tag: v1.0.0
     pullPolicy: IfNotPresent
 
-# Disable this database if you want to use your own
 postgresql:
+  # -- Set to false to use an external database. See instructions to configure the connection with `devhub.existingSecretName`.
   enabled: true
   auth:
     database: devhub
@@ -41,8 +45,8 @@ postgresql:
 service:
   type: ClusterIP
 
-# If you have traefik installed in your cluster you can configure an IngressRoute: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute
 ingressRoute:
+  # -- If you have Traefik installed in your cluster you can configure an IngressRoute: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute
   enabled: false
   tls: {}
 
@@ -81,7 +85,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-volumes: []
-
-volumeMounts: []

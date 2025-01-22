@@ -76,9 +76,6 @@ spec:
           - name: config
             mountPath: "/etc/secrets"
             readOnly: true
-          {{- with .Values.volumeMounts }}
-          {{- toYaml . | nindent 10 }}
-          {{- end }}
       {{- if not .Values.devhub.agent }}
         - name: query-parser
           securityContext:
@@ -114,9 +111,6 @@ spec:
           - name: config
             mountPath: "/etc/secrets"
             readOnly: true
-          {{- with .Values.volumeMounts }}
-          {{- toYaml . | nindent 10 }}
-          {{- end }}
       {{- end }}
       volumes:
       - name: config
@@ -128,9 +122,6 @@ spec:
           - secret:
               name: {{ .Values.devhub.existingSecretName }}
           {{- end }}
-      {{- with .Values.volumes }}
-      {{- toYaml . | nindent 6 }}
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
