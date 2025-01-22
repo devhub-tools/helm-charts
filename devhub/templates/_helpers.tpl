@@ -65,7 +65,7 @@ Create the name of the service account to use
 Default database password
 */}}
 {{- define "DevHub.defaultDatabasePassword" -}}
-{{- $secretObj := (lookup "v1" "Secret" .Release.Namespace "devhub-config") | default dict }}
+{{- $secretObj := (lookup "v1" "Secret" .Release.Namespace "internal-secrets") | default dict }}
 {{- $secretData := (get $secretObj "data") | default dict }}
 
 {{- (get $secretData "DB_PASSWORD") | default (randAlphaNum 32 | b64enc) }}
