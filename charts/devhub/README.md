@@ -11,7 +11,7 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
 1. Install with helm
 
     ```bash
-    helm repo add devhub https://devhub.github.io/helm-charts
+    helm repo add devhub https://devhub-tools.github.io/helm-charts
 
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
@@ -26,45 +26,41 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
 
 ### Define Postgres Database
 
-1. Create a secret with the database connection information
+1. Create a secret with the database connection information and provide the details in a values.yaml file (see full values available below).
 
     ```yaml
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: devhub-config
-      namespace: devhub
-    type: Opaque
-    data:
-      ### REQUIRED ###
-      DB_HOSTNAME:
-      DB_USERNAME:
-      DB_PASSWORD:
-      DB_SSL: "false" # set to `true` if you want to enable SSL
-
-      ### OPTIONAL ###
-      # Database SSL (if enabled)
-      ca.cert:
-      client.key:
-      client.cert:
+    devhub:
+      host: devhub.example.com
+      postgresql:
+        enabled: false
+      databaseConfig:
+        host:
+          secret: database-secret
+          key: host
+        user:
+          secret: database-secret
+          key: user
+        password:
+          secret: database-secret
+          key: password
     ```
 
 1. Install helm with the postgres flag disabled
 
     ```bash
-    helm repo add devhub https://devhub.github.io/helm-charts
+    helm repo add devhub https://devhub-tools.github.io/helm-charts
 
     helm install devhub devhub/devhub \
-      --set devhub.existingSecret=devhub-config \
-      --set devhub.host=devhub.example.com \
-      --set postgresql.enabled=false \
+      -f values.yaml \
       --version 2.0.0 \
       --namespace devhub
     ```
 
 ### Using Agents
 
-1. When using agents you need to make sure to define a shared encryption key for all deployments.
+Agents are a secondary install that connect to the main instance. This allows your main instance to connect into other networks.
+
+1. When using agents you need to make sure to define a shared encryption key for all installs.
 
     ```yaml
     apiVersion: v1
@@ -80,13 +76,14 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
 1. Create another helm installation and set the agent flag
 
     ```bash
-    helm repo add devhub https://devhub.github.io/helm-charts
+    helm repo add devhub https://devhub-tools.github.io/helm-charts
 
     helm install devhub-agent devhub/devhub \
-      --set devhub.existingSecret=devhub-config \
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
       --set postgresql.enabled=false \
+      --set devhub.sharedEncryptionKey.existingSecret.name=devhub-config \
+      --set devhub.sharedEncryptionKey.existingSecret.key=SHARED_ENCRYPTION_KEY \
       --version 2.0.0 \
       --namespace devhub
     ```
@@ -98,8 +95,18 @@ Instructions for running self hosted install of DevHub. Currently only k8s insta
 | affinity | object | `{}` |  |
 | devhub.agent | bool | `false` | Set to true if setting up an agent. |
 | devhub.auth.emailHeader | string | `""` | Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login. |
-| devhub.existingSecretName | string | `""` | See instructions for setting up secret to override application config. |
+| devhub.databaseConfig | object | `{"caCert":{},"clientCert":{},"clientKey":{},"host":{"key":"DB_HOSTNAME","secret":"internal-secrets"},"name":{"key":"DB_NAME","secret":"internal-secrets"},"password":{"key":"DB_PASSWORD","secret":"internal-secrets"},"port":{"key":"DB_PORT","secret":"internal-secrets"},"ssl":{"mode":"disabled"},"user":{"key":"DB_USERNAME","secret":"internal-secrets"}}` | See instructions for setting up secret to override application config. |
+| devhub.databaseConfig.caCert | object | `{}` | Secret name and key that contains the CA cert. |
+| devhub.databaseConfig.clientCert | object | `{}` | Secret name and key that contains the client cert. |
+| devhub.databaseConfig.clientKey | object | `{}` | Secret name and key that contains the client private key. |
+| devhub.databaseConfig.host | object | `{"key":"DB_HOSTNAME","secret":"internal-secrets"}` | Secret name and key that contains the database host. |
+| devhub.databaseConfig.name | object | `{"key":"DB_NAME","secret":"internal-secrets"}` | Secret name and key that contains the database name (defaults to `devhub`). |
+| devhub.databaseConfig.password | object | `{"key":"DB_PASSWORD","secret":"internal-secrets"}` | Secret name and key that contains the database password. |
+| devhub.databaseConfig.port | object | `{"key":"DB_PORT","secret":"internal-secrets"}` | Secret name and key that contains the database port (defaults to `5432`). |
+| devhub.databaseConfig.ssl.mode | string | `"disabled"` | Use `require` or `verify` to enable SSL. Disabled by default. |
+| devhub.databaseConfig.user | object | `{"key":"DB_USERNAME","secret":"internal-secrets"}` | Secret name and key that contains the database user. |
 | devhub.host | string | `"devhub.example.com"` | The hostname of your devhub instance. |
+| devhub.sharedEncryptionKey.existingSecret | object | `{}` | Set to true to use an existing secret for the shared encryption key. |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/devhub-tools/devhub"` |  |

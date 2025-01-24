@@ -7,10 +7,55 @@ replicaCount: 1
 devhub:
   # -- Set to true if setting up an agent.
   agent: false
+
+  sharedEncryptionKey:
+    # -- Set to true to use an existing secret for the shared encryption key.
+    existingSecret: {}
+    # - name: devhub-config
+    #   key: SHARED_ENCRYPTION_KEY
+
   # -- See instructions for setting up secret to override application config.
-  existingSecretName: ""
+  databaseConfig:
+    ssl:
+      # -- Use `require` or `verify` to enable SSL. Disabled by default.
+      mode: disabled # require, verify
+    # -- Secret name and key that contains the database host.
+    host:
+      secret: internal-secrets
+      key: DB_HOSTNAME
+    # -- Secret name and key that contains the database name (defaults to `devhub`).
+    name:
+      secret: internal-secrets
+      key: DB_NAME
+    # -- Secret name and key that contains the database user.
+    user:
+      secret: internal-secrets
+      key: DB_USERNAME
+    # -- Secret name and key that contains the database password.
+    password:
+      secret: internal-secrets
+      key: DB_PASSWORD
+    # -- Secret name and key that contains the database port (defaults to `5432`).
+    port:
+      secret: internal-secrets
+      key: DB_PORT
+    # -- Secret name and key that contains the CA cert.
+    caCert: {}
+    #   secret: postgres-ca
+    #   key: ca.crt
+    # -- Secret name and key that contains the client private key.
+    clientKey: {}
+    #   secret: postgres-server
+    #   key: tls.key
+    # -- Secret name and key that contains the client cert.
+    clientCert: {}
+    #   secret: postgres-server
+    #   key: tls.crt
+
+
   # -- The hostname of your devhub instance.
   host: devhub.example.com
+
   auth:
     # -- Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login.
     emailHeader: ""

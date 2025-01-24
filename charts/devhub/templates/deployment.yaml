@@ -54,6 +54,8 @@ spec:
               value: {{ .Values.devhub.host }}
             - name: APP_VERSION
               value: {{ .Values.image.tag | default .Chart.AppVersion }}
+            - name: DB_SSL
+              value: {{ .Values.devhub.databaseConfig.ssl.mode | quote }}
             {{- with .Values.devhub.auth.emailHeader }}
             - name: AUTH_EMAIL_HEADER
               value: {{ . | quote }}
@@ -118,9 +120,63 @@ spec:
           sources:
           - secret:
               name: internal-secrets
-          {{- with .Values.devhub.existingSecretName }}
+              items:
+              - path: CLOAK_KEY_V1
+                key: CLOAK_KEY_V1
+              - path: SECRET_KEY_BASE
+                key: SECRET_KEY_BASE
+          {{- with .Values.devhub.sharedEncryptionKey.existingSecret }}
           - secret:
-              name: {{ .Values.devhub.existingSecretName }}
+              name: {{ .name }}
+              items:
+              - path: SHARED_ENCRYPTION_KEY
+                key: {{ .key }}
+          {{- end }}
+          - secret:
+              name: {{ .Values.devhub.databaseConfig.host.secret }}
+              items:
+              - path: DB_HOSTNAME
+                key: {{ .Values.devhub.databaseConfig.host.key }}
+          - secret:
+              name: {{ .Values.devhub.databaseConfig.name.secret }}
+              items:
+              - path: DB_NAME
+                key: {{ .Values.devhub.databaseConfig.name.key }}
+          - secret:
+              name: {{ .Values.devhub.databaseConfig.user.secret }}
+              items:
+              - path: DB_USERNAME
+                key: {{ .Values.devhub.databaseConfig.user.key }}
+          - secret:
+              name: {{ .Values.devhub.databaseConfig.password.secret }}
+              items:
+              - path: DB_PASSWORD
+                key: {{ .Values.devhub.databaseConfig.password.key }}
+          - secret:
+              name: {{ .Values.devhub.databaseConfig.port.secret }}
+              items:
+              - path: DB_PORT
+                key: {{ .Values.devhub.databaseConfig.port.key }}
+          {{- with .Values.devhub.databaseConfig.caCert }}
+          - secret:
+              name: {{ .secret }}
+              items:
+              - path: ca.cert
+                key: {{ .key }}
+          {{- end }}
+          {{- with .Values.devhub.databaseConfig.clientKey }}
+          - secret:
+              name: {{ .secret }}
+              items:
+              - path: client.key
+                key: {{ .key }}
+          {{- end }}
+          {{- with .Values.devhub.databaseConfig.clientCert }}
+          - secret:
+              name: {{ .secret }}
+              items:
+              - path: client.cert
+                key: {{ .key }}
           {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

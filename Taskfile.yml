@@ -1,0 +1,6 @@
+version: '3'
+
+tasks:
+  docs:
+    cmds:
+      - helm-docs -b flag -t README.md.gotmpl -o README.md

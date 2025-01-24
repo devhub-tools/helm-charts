@@ -28,27 +28,23 @@
 
 ### Define Postgres Database
 
-1. Create a secret with the database connection information
+1. Create a secret with the database connection information and provide the details in a values.yaml file (see full values available below).
 
     ```yaml
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: devhub-config
-      namespace: devhub
-    type: Opaque
-    data:
-      ### REQUIRED ###
-      DB_HOSTNAME:
-      DB_USERNAME:
-      DB_PASSWORD:
-      DB_SSL: "false" # set to `true` if you want to enable SSL
-
-      ### OPTIONAL ###
-      # Database SSL (if enabled)
-      ca.cert:
-      client.key:
-      client.cert:
+    devhub:
+      host: devhub.example.com
+      postgresql:
+        enabled: false
+      databaseConfig:
+        host:
+          secret: database-secret
+          key: host
+        user:
+          secret: database-secret
+          key: user
+        password:
+          secret: database-secret
+          key: password
     ```
 
 1. Install helm with the postgres flag disabled
@@ -57,16 +53,16 @@
     helm repo add devhub https://devhub-tools.github.io/helm-charts
 
     helm install devhub devhub/devhub \
-      --set devhub.existingSecret=devhub-config \
-      --set devhub.host=devhub.example.com \
-      --set postgresql.enabled=false \
+      -f values.yaml \
       --version 2.0.0 \
       --namespace devhub
     ```
 
 ### Using Agents
 
-1. When using agents you need to make sure to define a shared encryption key for all deployments.
+Agents are a secondary install that connect to the main instance. This allows your main instance to connect into other networks.
+
+1. When using agents you need to make sure to define a shared encryption key for all installs.
 
     ```yaml
     apiVersion: v1
@@ -85,10 +81,11 @@
     helm repo add devhub https://devhub-tools.github.io/helm-charts
 
     helm install devhub-agent devhub/devhub \
-      --set devhub.existingSecret=devhub-config \
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
       --set postgresql.enabled=false \
+      --set devhub.sharedEncryptionKey.existingSecret.name=devhub-config \
+      --set devhub.sharedEncryptionKey.existingSecret.key=SHARED_ENCRYPTION_KEY \
       --version 2.0.0 \
       --namespace devhub
     ```
