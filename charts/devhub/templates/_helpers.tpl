@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "DevHub.name" -}}
+{{- define "Devhub.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "DevHub.fullname" -}}
+{{- define "Devhub.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "DevHub.chart" -}}
+{{- define "Devhub.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "DevHub.labels" -}}
-helm.sh/chart: {{ include "DevHub.chart" . }}
-{{ include "DevHub.selectorLabels" . }}
+{{- define "Devhub.labels" -}}
+helm.sh/chart: {{ include "Devhub.chart" . }}
+{{ include "Devhub.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "DevHub.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "DevHub.name" . }}
+{{- define "Devhub.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "Devhub.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "DevHub.serviceAccountName" -}}
+{{- define "Devhub.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "DevHub.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "Devhub.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -64,7 +64,7 @@ Create the name of the service account to use
 {{/*
 Default database password
 */}}
-{{- define "DevHub.defaultDatabasePassword" -}}
+{{- define "Devhub.defaultDatabasePassword" -}}
 {{- $secretObj := (lookup "v1" "Secret" .Release.Namespace "internal-secrets") | default dict }}
 {{- $secretData := (get $secretObj "data") | default dict }}
 

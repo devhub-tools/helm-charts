@@ -2,7 +2,7 @@
 
 ![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flag) ![AppVersion: v1.3.23](https://img.shields.io/badge/AppVersion-v1.3.23-informational?style=flag)
 
-Instructions for running self hosted install of DevHub. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
+Instructions for running self hosted install of Devhub. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 
 **Homepage:** <https://devhub.tools>
 

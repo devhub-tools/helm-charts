@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "DevHub.fullname" . }}
+  name: {{ include "Devhub.fullname" . }}
   labels:
-    {{- include "DevHub.labels" . | nindent 4 }}
+    {{- include "Devhub.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      {{- include "DevHub.selectorLabels" . | nindent 6 }}
+      {{- include "Devhub.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -17,13 +17,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "DevHub.selectorLabels" . | nindent 8 }}
+        {{- include "Devhub.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "DevHub.serviceAccountName" . }}
+      serviceAccountName: {{ include "Devhub.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -106,7 +106,7 @@ spec:
           command:
             - ./bin/devhub
             - eval
-            - DevHub.Release.migrate()
+            - Devhub.Release.migrate()
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

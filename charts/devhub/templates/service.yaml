@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "DevHub.fullname" . }}
-  labels: {{- include "DevHub.labels" . | nindent 4 }}
+  name: {{ include "Devhub.fullname" . }}
+  labels: {{- include "Devhub.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -14,4 +14,4 @@ spec:
       targetPort: postgres-proxy
       protocol: TCP
       name: postgres-proxy
-  selector: {{- include "DevHub.selectorLabels" . | nindent 4 }}
+  selector: {{- include "Devhub.selectorLabels" . | nindent 4 }}
