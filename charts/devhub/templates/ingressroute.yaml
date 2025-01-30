@@ -1,0 +1,23 @@
+{{- if .Values.ingressRoute.enabled -}}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "Devhub.fullname" . }}-http
+  labels:
+    {{- include "Devhub.labels" $ | nindent 4 }}
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`{{ .Values.devhub.host }}`)
+      priority: 10
+      services:
+      - name: {{ include "Devhub.fullname" . }}
+        port: http
+        passHostHeader: true
+  tls:
+    {{- toYaml .Values.ingressRoute.tls | nindent 4 }}
+{{- end }}

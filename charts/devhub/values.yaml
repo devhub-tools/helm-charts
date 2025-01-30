@@ -1,0 +1,132 @@
+# Default values for Devhub.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+devhub:
+  # -- Set to true if setting up an agent.
+  agent: false
+
+  sharedEncryptionKey:
+    # -- Set to true to use an existing secret for the shared encryption key.
+    existingSecret: {}
+    # - name: devhub-config
+    #   key: SHARED_ENCRYPTION_KEY
+
+  # -- See instructions for setting up secret to override application config.
+  databaseConfig:
+    ssl:
+      # -- Use `require` or `verify` to enable SSL. Disabled by default.
+      mode: disabled # require, verify
+    # -- Secret name and key that contains the database host.
+    host:
+      secret: internal-secrets
+      key: DB_HOSTNAME
+    # -- Secret name and key that contains the database name (defaults to `devhub`).
+    name:
+      secret: internal-secrets
+      key: DB_NAME
+    # -- Secret name and key that contains the database user.
+    user:
+      secret: internal-secrets
+      key: DB_USERNAME
+    # -- Secret name and key that contains the database password.
+    password:
+      secret: internal-secrets
+      key: DB_PASSWORD
+    # -- Secret name and key that contains the database port (defaults to `5432`).
+    port:
+      secret: internal-secrets
+      key: DB_PORT
+    # -- Secret name and key that contains the CA cert.
+    caCert: {}
+    #   secret: postgres-ca
+    #   key: ca.crt
+    # -- Secret name and key that contains the client private key.
+    clientKey: {}
+    #   secret: postgres-server
+    #   key: tls.key
+    # -- Secret name and key that contains the client cert.
+    clientCert: {}
+    #   secret: postgres-server
+    #   key: tls.crt
+
+
+  # -- The hostname of your devhub instance.
+  host: devhub.example.com
+
+  auth:
+    # -- Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login.
+    emailHeader: ""
+
+image:
+  repository: ghcr.io/devhub-tools/devhub
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+queryParser:
+  image:
+    repository: ghcr.io/devhub-tools/query-parser
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+
+requestTracer:
+  image:
+    repository: ghcr.io/devhub-tools/request-tracer
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+
+postgresql:
+  # -- Set to false to use an external database. See instructions to configure the connection with `devhub.existingSecretName`.
+  enabled: true
+  auth:
+    database: devhub
+    existingSecret: internal-secrets
+    secretKeys:
+      adminPasswordKey: DB_PASSWORD
+
+service:
+  type: ClusterIP
+
+ingressRoute:
+  # -- If you have Traefik installed in your cluster you can configure an IngressRoute: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute
+  enabled: false
+  tls: {}
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  runAsNonRoot: true
+  runAsUser: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
