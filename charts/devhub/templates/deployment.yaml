@@ -121,6 +121,13 @@ spec:
       - name: config
         projected:
           sources:
+          {{- if .Values.devhub.agent }}
+          - secret:
+              name: {{ .Values.devhub.agentConfig.secret }}
+              items:
+              - path: agent-config.json
+                key: {{ .Values.devhub.agentConfig.key }}
+          {{- else }}
           - secret:
               name: internal-secrets
               items:
@@ -183,6 +190,7 @@ spec:
               items:
               - path: client.cert
                 key: {{ .key }}
+          {{- end }}
           {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
