@@ -109,6 +109,9 @@ spec:
             - Devhub.Release.migrate()
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: DB_SSL
+              value: {{ .Values.devhub.databaseConfig.ssl.mode | quote }}
           volumeMounts:
           - name: config
             mountPath: "/etc/secrets"
