@@ -95,10 +95,13 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | affinity | object | `{}` |  |
 | devhub.agent | bool | `false` | Set to true if setting up an agent. |
 | devhub.auth.emailHeader | string | `""` | Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login. |
-| devhub.databaseConfig | object | `{"caCert":{},"clientCert":{},"clientKey":{},"host":{"key":"DB_HOSTNAME","secret":"internal-secrets"},"name":{"key":"DB_NAME","secret":"internal-secrets"},"password":{"key":"DB_PASSWORD","secret":"internal-secrets"},"port":{"key":"DB_PORT","secret":"internal-secrets"},"ssl":{"mode":"disabled"},"user":{"key":"DB_USERNAME","secret":"internal-secrets"}}` | See instructions for setting up secret to override application config. |
+| devhub.databaseConfig | object | `{"caCert":{},"clientCert":{},"clientKey":{},"encryptionKey":{"key":"CLOAK_KEY_V1","secret":"internal-secrets"},"host":{"key":"DB_HOSTNAME","secret":"internal-secrets"},"name":{"key":"DB_NAME","secret":"internal-secrets"},"password":{"key":"DB_PASSWORD","secret":"internal-secrets"},"port":{"key":"DB_PORT","secret":"internal-secrets"},"ssl":{"mode":"disabled"},"user":{"key":"DB_USERNAME","secret":"internal-secrets"}}` | See instructions for setting up secret to override application config. |
 | devhub.databaseConfig.caCert | object | `{}` | Secret name and key that contains the CA cert. |
 | devhub.databaseConfig.clientCert | object | `{}` | Secret name and key that contains the client cert. |
 | devhub.databaseConfig.clientKey | object | `{}` | Secret name and key that contains the client private key. |
+| devhub.databaseConfig.encryptionKey | object | `{"key":"CLOAK_KEY_V1","secret":"internal-secrets"}` | The database encryption key is automatically generated for you, but if you want to create your own it must be a 32 byte base64 encoded string. This can't be changed after install otherwise you will lose all encrypted data. |
+| devhub.databaseConfig.encryptionKey.key | string | `"CLOAK_KEY_V1"` | The key inside the specified secret to load the encryption key from. |
+| devhub.databaseConfig.encryptionKey.secret | string | `"internal-secrets"` | The secret that contains the database encryption key. |
 | devhub.databaseConfig.host | object | `{"key":"DB_HOSTNAME","secret":"internal-secrets"}` | Secret name and key that contains the database host. |
 | devhub.databaseConfig.name | object | `{"key":"DB_NAME","secret":"internal-secrets"}` | Secret name and key that contains the database name (defaults to `devhub`). |
 | devhub.databaseConfig.password | object | `{"key":"DB_PASSWORD","secret":"internal-secrets"}` | Secret name and key that contains the database password. |

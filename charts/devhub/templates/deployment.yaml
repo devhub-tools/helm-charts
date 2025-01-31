@@ -121,8 +121,6 @@ spec:
           - secret:
               name: internal-secrets
               items:
-              - path: CLOAK_KEY_V1
-                key: CLOAK_KEY_V1
               - path: SECRET_KEY_BASE
                 key: SECRET_KEY_BASE
           {{- with .Values.devhub.sharedEncryptionKey.existingSecret }}
@@ -132,6 +130,11 @@ spec:
               - path: SHARED_ENCRYPTION_KEY
                 key: {{ .key }}
           {{- end }}
+          - secret:
+            name: {{ .Values.devhub.database.encryptionKey.secret }}
+            items:
+            - path: CLOAK_KEY_V1
+              key: {{ .Values.devhub.database.encryptionKey.key }}
           - secret:
               name: {{ .Values.devhub.databaseConfig.host.secret }}
               items:
