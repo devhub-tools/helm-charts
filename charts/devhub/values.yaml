@@ -16,9 +16,12 @@ devhub:
 
   # -- See instructions for setting up secret to override application config.
   databaseConfig:
-    ssl:
-      # -- Use `require` or `verify` to enable SSL. Disabled by default.
-      mode: disabled # require, verify
+    # -- The database encryption key is automatically generated for you, but if you want to create your own it must be a 32 byte base64 encoded string. This can't be changed after install otherwise you will lose all encrypted data.
+    encryptionKey:
+      # -- The secret that contains the database encryption key.
+      secret: internal-secrets
+      # -- The key inside the specified secret to load the encryption key from.
+      key: CLOAK_KEY_V1
     # -- Secret name and key that contains the database host.
     host:
       secret: internal-secrets
@@ -39,6 +42,9 @@ devhub:
     port:
       secret: internal-secrets
       key: DB_PORT
+    ssl:
+      # -- Use `require` or `verify` to enable SSL. Disabled by default.
+      mode: disabled # require, verify
     # -- Secret name and key that contains the CA cert.
     caCert: {}
     #   secret: postgres-ca
