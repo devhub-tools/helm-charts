@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "Devhub.fullname" . }}
+  name: devhub
   labels:
     {{- include "Devhub.labels" . | nindent 4 }}
 spec:
@@ -74,6 +74,10 @@ spec:
             - name: AGENT_CONFIG_FILE
               value: /etc/secrets/agent-config.json
             {{- end }}
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           volumeMounts:
           - name: config
             mountPath: "/etc/secrets"
