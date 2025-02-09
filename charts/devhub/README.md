@@ -1,6 +1,6 @@
 # devhub
 
-![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flag) ![AppVersion: v1.3.23](https://img.shields.io/badge/AppVersion-v1.3.23-informational?style=flag)
+![Version: 2.0.3](https://img.shields.io/badge/Version-2.0.3-informational?style=flag) ![AppVersion: v1.3.29](https://img.shields.io/badge/AppVersion-v1.3.29-informational?style=flag)
 
 Instructions for running self hosted install of Devhub. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 
@@ -110,14 +110,12 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | devhub.databaseConfig.user | object | `{"key":"DB_USERNAME","secret":"internal-secrets"}` | Secret name and key that contains the database user. |
 | devhub.host | string | `"devhub.example.com"` | The hostname of your devhub instance. |
 | devhub.sharedEncryptionKey.existingSecret | object | `{}` | Set to true to use an existing secret for the shared encryption key. |
-| fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/devhub-tools/devhub"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
 | ingressRoute.enabled | bool | `false` | If you have Traefik installed in your cluster you can configure an IngressRoute: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute |
 | ingressRoute.tls | object | `{}` |  |
-| nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
 | podSecurityContext | object | `{}` |  |

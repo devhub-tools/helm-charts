@@ -2,8 +2,8 @@ apiVersion: v2
 name: devhub
 description: Instructions for running self hosted install of Devhub. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 home: https://devhub.tools
-version: 2.0.2
-appVersion: v1.3.24
+version: 2.0.3
+appVersion: v1.3.29
 dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
