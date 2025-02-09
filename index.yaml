@@ -2,6 +2,23 @@ apiVersion: v1
 entries:
   devhub:
   - apiVersion: v2
+    appVersion: v1.3.29
+    created: "2025-02-09T22:36:36.899074492Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.2.3
+    description: Instructions for running self hosted install of Devhub. Currently
+      only k8s install is supported, reach out to support@devhub.tools if you would
+      like additional methods supported.
+    digest: e3264600506fe780a750fe019357bf5285f1f8a62fa54c47e7c06b17705ac1cd
+    home: https://devhub.tools
+    name: devhub
+    urls:
+    - https://github.com/devhub-tools/helm-charts/releases/download/devhub-2.0.3/devhub-2.0.3.tgz
+    version: 2.0.3
+  - apiVersion: v2
     appVersion: v1.3.24
     created: "2025-01-31T06:25:11.135382682Z"
     dependencies:
@@ -52,4 +69,4 @@ entries:
     urls:
     - https://github.com/devhub-tools/helm-charts/releases/download/devhub-2.0.0/devhub-2.0.0.tgz
     version: 2.0.0
-generated: "2025-01-31T06:25:11.135398031Z"
+generated: "2025-02-09T22:36:36.899093037Z"
