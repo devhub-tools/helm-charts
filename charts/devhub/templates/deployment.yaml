@@ -125,13 +125,6 @@ spec:
       - name: config
         projected:
           sources:
-          {{- if .Values.devhub.agent }}
-          - secret:
-              name: {{ .Values.devhub.agentConfig.secret }}
-              items:
-              - path: agent-config.json
-                key: {{ .Values.devhub.agentConfig.key }}
-          {{- else }}
           - secret:
               name: internal-secrets
               items:
@@ -144,6 +137,13 @@ spec:
               - path: SHARED_ENCRYPTION_KEY
                 key: {{ .key }}
           {{- end }}
+          {{- if .Values.devhub.agent }}
+          - secret:
+              name: {{ .Values.devhub.agentConfig.secret }}
+              items:
+              - path: agent-config.json
+                key: {{ .Values.devhub.agentConfig.key }}
+          {{- else }}
           - secret:
               name: {{ .Values.devhub.databaseConfig.encryptionKey.secret }}
               items:
