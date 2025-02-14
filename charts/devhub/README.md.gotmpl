@@ -33,8 +33,6 @@
     ```yaml
     devhub:
       host: devhub.example.com
-      postgresql:
-        enabled: false
       databaseConfig:
         host:
           secret: database-secret
@@ -45,6 +43,9 @@
         password:
           secret: database-secret
           key: password
+
+    postgresql:
+      enabled: false
     ```
 
 1. Install helm with the postgres flag disabled
@@ -84,8 +85,10 @@ Agents are a secondary install that connect to the main instance. This allows yo
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
       --set postgresql.enabled=false \
-      --set devhub.sharedEncryptionKey.existingSecret.name=devhub-config \
-      --set devhub.sharedEncryptionKey.existingSecret.key=SHARED_ENCRYPTION_KEY \
+      --set devhub.agentConfig.secret=devhub-config \
+      --set devhub.agentConfig.name=agent-config.json \
+      --set devhub.sharedEncryptionKey.secret=devhub-config \
+      --set devhub.sharedEncryptionKey.key=SHARED_ENCRYPTION_KEY \
       --version 2.0.0 \
       --namespace devhub
     ```

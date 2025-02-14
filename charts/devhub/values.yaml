@@ -8,10 +8,9 @@ devhub:
   # -- Set to true if setting up an agent.
   agent: false
 
-  sharedEncryptionKey:
-    # -- Set to true to use an existing secret for the shared encryption key.
-    existingSecret: {}
-    # - name: devhub-config
+  # -- Secret configuration for the shared encryption key (if using agents).
+  sharedEncryptionKey: {}
+    # - secret: devhub-config
     #   key: SHARED_ENCRYPTION_KEY
 
   # -- See instructions for setting up secret to override application config.
@@ -85,7 +84,7 @@ requestTracer:
     pullPolicy: IfNotPresent
 
 postgresql:
-  # -- Set to false to use an external database. See instructions to configure the connection with `devhub.existingSecretName`.
+  # -- Set to false to use an external database. See instructions to configure the connection with `devhub.databaseConfig`.
   enabled: true
   auth:
     database: devhub

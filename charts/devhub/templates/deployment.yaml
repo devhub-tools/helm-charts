@@ -137,9 +137,9 @@ spec:
               items:
               - path: SECRET_KEY_BASE
                 key: SECRET_KEY_BASE
-          {{- with .Values.devhub.sharedEncryptionKey.existingSecret }}
+          {{- with .Values.devhub.sharedEncryptionKey }}
           - secret:
-              name: {{ .name }}
+              name: {{ .secret }}
               items:
               - path: SHARED_ENCRYPTION_KEY
                 key: {{ .key }}
