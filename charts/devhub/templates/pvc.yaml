@@ -13,4 +13,4 @@ spec:
       storage: 10Gi
   selector:
     matchLabels:
-      {{- include "Devhub.labels" . | nindent 6 }}
+      {{- include "Devhub.selectorLabels" . | nindent 8 }}
