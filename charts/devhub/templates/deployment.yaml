@@ -130,6 +130,11 @@ spec:
               items:
               - path: SECRET_KEY_BASE
                 key: SECRET_KEY_BASE
+          - secret:
+              name: internal-secrets
+              items:
+              - path: SIGNING_KEY
+                key: SIGNING_KEY
           {{- with .Values.devhub.sharedEncryptionKey }}
           - secret:
               name: {{ .secret }}
