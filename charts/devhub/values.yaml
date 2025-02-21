@@ -65,6 +65,10 @@ devhub:
     # -- Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login.
     emailHeader: ""
 
+terradesk:
+  pluginCache:
+    enabled: true
+
 image:
   repository: ghcr.io/devhub-tools/devhub
   pullPolicy: IfNotPresent

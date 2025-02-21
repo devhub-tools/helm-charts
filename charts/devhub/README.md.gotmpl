@@ -18,7 +18,8 @@
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
       --version 2.0.0 \
-      --namespace devhub
+      --namespace devhub \
+      --create-namespace
     ```
 
 1. Setup ingress
