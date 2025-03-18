@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: devhub
   labels: {{- include "Devhub.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.service.annotations | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
