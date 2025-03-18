@@ -60,13 +60,19 @@ spec:
             - name: AUTH_EMAIL_HEADER
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.devhub.proxyCommand }}
+            {{- with .Values.devhub.proxy.command }}
             - name: PROXY_COMMAND
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.devhub.proxyInstructions }}
+            {{- with .Values.devhub.proxy.instructions }}
             - name: PROXY_INSTRUCTIONS
               value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.devhub.proxy.tls }}
+            - name: PROXY_TLS_CERT_PATH
+              value: /etc/secrets/proxy-tls.crt
+            - name: PROXY_TLS_KEY_PATH
+              value: /etc/secrets/proxy-tls.key
             {{- end }}
             {{- if .Values.devhub.agent }}
             - name: AGENT
@@ -198,6 +204,20 @@ spec:
               name: {{ .secret }}
               items:
               - path: client.cert
+                key: {{ .key }}
+          {{- end }}
+          {{- with .Values.devhub.proxy.tls.cert }}
+          - secret:
+              name: {{ .secret }}
+              items:
+              - path: proxy-tls.crt
+                key: {{ .key }}
+          {{- end }}
+          {{- with .Values.devhub.proxy.tls.key }}
+          - secret:
+              name: {{ .secret }}
+              items:
+              - path: proxy-tls.key
                 key: {{ .key }}
           {{- end }}
           {{- end }}
