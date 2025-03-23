@@ -1,0 +1,62 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ .Values.postgresql.cluster.name }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: metrics
+    prometheus.io/scheme: https
+
+spec:
+  instances: {{ .Values.postgresql.cluster.instances }}
+
+  bootstrap:
+    initdb:
+      database: devhub
+      owner: devhub
+
+  postgresql:
+    pg_hba:
+      - hostssl all all all scram-sha-256
+
+  managed:
+    roles:
+      - name: devhub
+        ensure: present
+        login: true
+        createrole: true
+        replication: true
+
+  primaryUpdateStrategy: unsupervised
+
+  storage:
+    size: {{ .Values.postgresql.cluster.storage.size }}
+    {{- if .Values.postgresql.cluster.storage.storageClass }}
+    storageClass: {{ .Values.postgresql.cluster.storage.storageClass }}
+    {{- end }}
+
+  {{- if .Values.postgresql.backup.enabled }}
+  backup:
+    target: prefer-standby
+    retentionPolicy: {{ .Values.postgresql.cluster.backup.retentionPolicy }}
+    {{- with .Values.postgresql.cluster.backup.barmanObjectStore }}
+    barmanObjectStore:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
+---
+{{- if .Values.postgresql.backup.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: daily
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: "0 0 0 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: {{ .Release.Name }}-postgres
+{{- end }}
+{{- end }}

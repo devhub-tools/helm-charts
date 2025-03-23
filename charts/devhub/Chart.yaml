@@ -4,8 +4,3 @@ description: Instructions for running self hosted install of Devhub. Currently o
 home: https://devhub.tools
 version: 2.0.8
 appVersion: v1.4.9
-dependencies:
-- name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 16.2.3
-  condition: postgresql.enabled

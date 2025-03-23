@@ -141,13 +141,6 @@ spec:
               items:
               - path: SIGNING_KEY
                 key: SIGNING_KEY
-          {{- with .Values.devhub.sharedEncryptionKey }}
-          - secret:
-              name: {{ .secret }}
-              items:
-              - path: SHARED_ENCRYPTION_KEY
-                key: {{ .key }}
-          {{- end }}
           {{- if .Values.devhub.agent }}
           - secret:
               name: {{ .Values.devhub.agentConfig.secret }}
