@@ -108,6 +108,24 @@ spec:
               containerPort: 50052
               protocol: TCP
       initContainers:
+        - name: database-ready
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - ./bin/devhub
+            - eval
+            - Devhub.Release.wait_for_database_ready()
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: DB_SSL
+              value: {{ .Values.devhub.databaseConfig.ssl.mode | quote }}
+          volumeMounts:
+          - name: config
+            mountPath: "/etc/secrets"
+            readOnly: true
         - name: devhub-migrations
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
