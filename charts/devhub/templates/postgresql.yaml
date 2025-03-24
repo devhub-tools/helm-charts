@@ -20,6 +20,8 @@ spec:
   postgresql:
     pg_hba:
       - hostssl all all all scram-sha-256
+    parameters:
+      shared_buffers: {{ .Values.postgresql.cluster.sharedBuffers }}
 
   managed:
     roles:
@@ -36,6 +38,11 @@ spec:
     {{- if .Values.postgresql.cluster.storage.storageClass }}
     storageClass: {{ .Values.postgresql.cluster.storage.storageClass }}
     {{- end }}
+
+  {{- with .Values.postgresql.cluster.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 
   {{- with .Values.postgresql.cluster.affinity }}
   affinity:

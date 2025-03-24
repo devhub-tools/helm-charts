@@ -101,6 +101,24 @@ ingressRoute:
   enabled: false
   tls: {}
 
+networkPolicy:
+  create: false
+  ingress:
+    - ports:
+      - port: 4000
+        protocol: TCP
+  egress:
+    - ports:
+      - port: 53
+        protocol: TCP
+      - port: 53
+        protocol: UDP
+      - port: 443
+        protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+
 imagePullSecrets: []
 
 serviceAccount:
@@ -144,5 +162,11 @@ postgresql:
     storage:
       size: 4Gi
       storageClass: ""
+    sharedBuffers: "256MB"
+    resources:
+      requests:
+        cpu: "20m"
+      limits:
+        memory: "1Gi"
   backup:
     enabled: false
