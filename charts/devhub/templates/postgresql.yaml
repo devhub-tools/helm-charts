@@ -37,6 +37,11 @@ spec:
     storageClass: {{ .Values.postgresql.cluster.storage.storageClass }}
     {{- end }}
 
+  {{- with .Values.postgresql.cluster.affinity }}
+  affinity:
+    {{- toYaml . | nindent 6 }}
+  {{- end }}
+
   {{- if .Values.postgresql.backup.enabled }}
   backup:
     target: prefer-standby
