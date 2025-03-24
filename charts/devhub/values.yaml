@@ -146,4 +146,3 @@ postgresql:
       storageClass: ""
   backup:
     enabled: false
-    retentionPolicy: "7d"

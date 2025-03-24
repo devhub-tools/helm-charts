@@ -39,17 +39,12 @@ spec:
 
   {{- with .Values.postgresql.cluster.affinity }}
   affinity:
-    {{- toYaml . | nindent 6 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 
-  {{- if .Values.postgresql.backup.enabled }}
+  {{- with .Values.postgresql.cluster.backup }}
   backup:
-    target: prefer-standby
-    retentionPolicy: {{ .Values.postgresql.cluster.backup.retentionPolicy }}
-    {{- with .Values.postgresql.cluster.backup.barmanObjectStore }}
-    barmanObjectStore:
-      {{- toYaml . | nindent 6 }}
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 ---
 {{- if .Values.postgresql.backup.enabled }}
