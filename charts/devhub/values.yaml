@@ -57,6 +57,12 @@ devhub:
     #   secret: postgres-server
     #   key: tls.crt
 
+  proxy: {}
+    # command: ""
+    # instructions: ""
+    # tls:
+    #   cert: {}
+    #   key: {}
 
   # -- The hostname of your devhub instance.
   host: devhub.example.com
@@ -136,8 +142,8 @@ postgresql:
     name: postgres
     instances: 2
     storage:
-      size: 1Gi
+      size: 4Gi
       storageClass: ""
-    backup:
-      enabled: false
-      retentionPolicy: "7d"
+  backup:
+    enabled: false
+    retentionPolicy: "7d"

@@ -199,19 +199,21 @@ spec:
               - path: client.cert
                 key: {{ .key }}
           {{- end }}
-          {{- with .Values.devhub.proxy.tls.cert }}
+          {{- with .Values.devhub.proxy }}
+          {{- with .tls.cert }}
           - secret:
               name: {{ .secret }}
               items:
               - path: proxy-tls.crt
                 key: {{ .key }}
           {{- end }}
-          {{- with .Values.devhub.proxy.tls.key }}
+          {{- with .tls.key }}
           - secret:
               name: {{ .secret }}
               items:
               - path: proxy-tls.key
                 key: {{ .key }}
+          {{- end }}
           {{- end }}
           {{- end }}
       {{- with .Values.nodeSelector }}
