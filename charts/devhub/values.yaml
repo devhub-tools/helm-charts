@@ -113,8 +113,13 @@ networkPolicy:
         protocol: TCP
       - port: 53
         protocol: UDP
-      - port: 443
-        protocol: TCP
+      to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+    # allow internet egress (depending on your k8s setup you may need to exclude internal IPs)
+    - ports:
+      - protocol: TCP
       to:
         - ipBlock:
             cidr: 0.0.0.0/0
