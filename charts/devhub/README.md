@@ -95,16 +95,7 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | imagePullSecrets | list | `[]` |  |
 | ingressRoute.enabled | bool | `false` | If you have Traefik installed in your cluster you can configure an IngressRoute: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute |
 | ingressRoute.tls | object | `{}` |  |
-| networkPolicy.create | bool | `false` |  |
-| networkPolicy.egress[0].ports[0].port | int | `53` |  |
-| networkPolicy.egress[0].ports[0].protocol | string | `"TCP"` |  |
-| networkPolicy.egress[0].ports[1].port | int | `53` |  |
-| networkPolicy.egress[0].ports[1].protocol | string | `"UDP"` |  |
-| networkPolicy.egress[0].to[0].namespaceSelector.matchLabels."kubernetes.io/metadata.name" | string | `"kube-system"` |  |
-| networkPolicy.egress[1].ports[0].protocol | string | `"TCP"` |  |
-| networkPolicy.egress[1].to[0].ipBlock.cidr | string | `"0.0.0.0/0"` |  |
-| networkPolicy.ingress[0].ports[0].port | int | `4000` |  |
-| networkPolicy.ingress[0].ports[0].protocol | string | `"TCP"` |  |
+| networkPolicy.create | bool | `false` | Set to true to create a network policy (disabled by default). |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
 | podSecurityContext | object | `{}` |  |

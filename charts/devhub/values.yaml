@@ -63,11 +63,14 @@ ingressRoute:
   tls: {}
 
 networkPolicy:
+  # -- Set to true to create a network policy (disabled by default).
   create: false
+  # @ignored
   ingress:
     - ports:
       - port: 4000
         protocol: TCP
+  # @ignored
   egress:
     - ports:
       - port: 53
