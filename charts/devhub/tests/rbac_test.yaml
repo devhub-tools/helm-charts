@@ -1,0 +1,11 @@
+suite: Secret
+templates:
+  - rbac.yaml
+release:
+  name: devhub
+  namespace: devhub
+
+tests:
+  - it: should render rbac
+    asserts:
+      - matchSnapshot: {}

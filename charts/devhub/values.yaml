@@ -8,61 +8,8 @@ devhub:
   # -- Set to true if setting up an agent.
   agent: false
 
-  # -- Secret configuration for the shared encryption key (if using agents).
-  sharedEncryptionKey: {}
-    # - secret: devhub-config
-    #   key: SHARED_ENCRYPTION_KEY
-
-  # -- See instructions for setting up secret to override application config.
-  databaseConfig:
-    # -- The database encryption key is automatically generated for you, but if you want to create your own it must be a 32 byte base64 encoded string. This can't be changed after install otherwise you will lose all encrypted data.
-    encryptionKey:
-      # -- The secret that contains the database encryption key.
-      secret: internal-secrets
-      # -- The key inside the specified secret to load the encryption key from.
-      key: CLOAK_KEY_V1
-    # -- Secret name and key that contains the database host.
-    host:
-      secret: internal-secrets
-      key: DB_HOSTNAME
-    # -- Secret name and key that contains the database name (defaults to `devhub`).
-    name:
-      secret: internal-secrets
-      key: DB_NAME
-    # -- Secret name and key that contains the database user.
-    user:
-      secret: internal-secrets
-      key: DB_USERNAME
-    # -- Secret name and key that contains the database password.
-    password:
-      secret: internal-secrets
-      key: DB_PASSWORD
-    # -- Secret name and key that contains the database port (defaults to `5432`).
-    port:
-      secret: internal-secrets
-      key: DB_PORT
-    ssl:
-      # -- Use `require` or `verify` to enable SSL. Disabled by default.
-      mode: disabled # require, verify
-    # -- Secret name and key that contains the CA cert.
-    caCert: {}
-    #   secret: postgres-ca
-    #   key: ca.crt
-    # -- Secret name and key that contains the client private key.
-    clientKey: {}
-    #   secret: postgres-server
-    #   key: tls.key
-    # -- Secret name and key that contains the client cert.
-    clientCert: {}
-    #   secret: postgres-server
-    #   key: tls.crt
-
-  proxy: {}
-    # command: ""
-    # instructions: ""
-    # tls:
-    #   cert: {}
-    #   key: {}
+  # -- Secret name that contains the application config. See full docs for required keys.
+  secret: ""
 
   # -- The hostname of your devhub instance.
   host: devhub.example.com
@@ -71,9 +18,23 @@ devhub:
     # -- Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login.
     emailHeader: ""
 
-terradesk:
-  pluginCache:
-    enabled: true
+  database:
+    # -- Database connection port (defaults to `5432`).
+    port: 5432
+    ssl:
+      # -- Use `require` or `verify` to enable SSL. Disabled by default.
+      mode: disabled
+    # -- Secret name that contains the database CA cert. Must have `ca.crt`.
+    caSecret: ""
+    # -- Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`.
+    clientCertSecret: ""
+
+  proxy:
+    # command: ""
+    # instructions: ""
+    tls:
+      # -- Secret name that contains the TLS certs to be served by the proxy. Must have both `tls.crt` and `tls.key`.
+      secret: ""
 
 image:
   repository: ghcr.io/devhub-tools/devhub
@@ -173,5 +134,7 @@ postgresql:
         cpu: "20m"
       limits:
         memory: "1Gi"
-  backup:
+  scheduledBackup:
     enabled: false
+    # The cron schedule for the backup. Defaults to daily.
+    schedule: "0 0 0 * * *"

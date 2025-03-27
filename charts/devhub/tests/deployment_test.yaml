@@ -1,0 +1,51 @@
+suite: Deployment
+templates:
+  - deployment.yaml
+release:
+  name: devhub
+  namespace: devhub
+
+tests:
+  - it: should render deployment with default values
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render deployment with custom values
+    set:
+      devhub:
+        secret: devhub-config
+        auth:
+          emailHeader: X-Forwarded-Email
+        database:
+          ssl:
+            mode: verify
+          caSecret: devhub-postgres-ca
+          clientCertSecret: devhub-postgres-app
+        proxy:
+          command: "cloudflared tunnel run"
+          instructions: "Run the command above to start the proxy"
+          tls:
+            secret: proxy-tls
+
+      resources:
+        requests:
+          cpu: 20m
+        limits:
+          memory: 512Mi
+
+      tolerations:
+        - key: key
+          operator: Exists
+          value: value
+          effect: NoSchedule
+
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render deployment with agent
+    set:
+      devhub:
+        agent: true
+        secret: devhub-config
+    asserts:
+      - matchSnapshot: {}

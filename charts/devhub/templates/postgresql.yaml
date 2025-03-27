@@ -3,6 +3,8 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: {{ .Values.postgresql.cluster.name }}
+  labels:
+    {{- include "Devhub.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
   annotations:
     prometheus.io/scrape: "true"
@@ -54,16 +56,18 @@ spec:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 ---
-{{- if .Values.postgresql.backup.enabled }}
+{{- if .Values.postgresql.scheduledBackup.enabled }}
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
-  name: daily
+  name: scheduled-backup
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "Devhub.labels" . | nindent 4 }}
 spec:
-  schedule: "0 0 0 * * *"
+  schedule: "{{ .Values.postgresql.scheduledBackup.schedule }}"
   backupOwnerReference: self
   cluster:
-    name: {{ .Release.Name }}-postgres
+    name: {{ .Values.postgresql.cluster.name }}
 {{- end }}
 {{- end }}

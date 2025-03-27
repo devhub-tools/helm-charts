@@ -1,0 +1,15 @@
+suite: Service
+templates:
+  - service.yaml
+release:
+  name: devhub
+  namespace: devhub
+
+tests:
+  - it: should create service by default
+    set:
+      service:
+        annotations:
+          custom-annotation: "custom-value"
+    asserts:
+      - matchSnapshot: {}

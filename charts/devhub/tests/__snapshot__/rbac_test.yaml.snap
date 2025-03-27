@@ -1,0 +1,53 @@
+should render rbac:
+  1: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        helm.sh/chart: devhub-2.1.0
+      name: devhub
+    rules:
+      - apiGroups:
+          - batch
+        resources:
+          - jobs
+        verbs:
+          - create
+          - delete
+      - apiGroups:
+          - ""
+        resources:
+          - pods
+          - pods/log
+        verbs:
+          - list
+          - get
+      - apiGroups:
+          - ""
+        resources:
+          - secrets
+          - serviceaccounts/token
+        verbs:
+          - create
+          - update
+  2: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        helm.sh/chart: devhub-2.1.0
+      name: devhub
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: devhub
+    subjects:
+      - kind: ServiceAccount
+        name: devhub
+        namespace: devhub

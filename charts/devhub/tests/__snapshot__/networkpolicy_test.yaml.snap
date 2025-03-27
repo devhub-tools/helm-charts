@@ -1,0 +1,57 @@
+renders network policy with custom values:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        helm.sh/chart: devhub-2.1.0
+      name: devhub
+    spec:
+      egress:
+        - ports:
+            - port: 4000
+      ingress:
+        - ports:
+            - port: 4000
+      podSelector: {}
+      policyTypes:
+        - Ingress
+        - Egress
+renders network policy with default values:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        helm.sh/chart: devhub-2.1.0
+      name: devhub
+    spec:
+      egress:
+        - ports:
+            - port: 53
+              protocol: TCP
+            - port: 53
+              protocol: UDP
+          to:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: kube-system
+        - ports:
+            - protocol: TCP
+          to:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+      ingress:
+        - ports:
+            - port: 4000
+              protocol: TCP
+      podSelector: {}
+      policyTypes:
+        - Ingress
+        - Egress

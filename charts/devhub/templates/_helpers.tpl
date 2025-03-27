@@ -18,9 +18,6 @@ Common labels
 {{- define "Devhub.labels" -}}
 helm.sh/chart: {{ include "Devhub.chart" . }}
 {{ include "Devhub.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
@@ -41,14 +38,4 @@ Create the name of the service account to use
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
-{{- end }}
-
-{{/*
-Default database password
-*/}}
-{{- define "Devhub.defaultDatabasePassword" -}}
-{{- $secretObj := (lookup "v1" "Secret" .Release.Namespace "internal-secrets") | default dict }}
-{{- $secretData := (get $secretObj "data") | default dict }}
-
-{{- (get $secretData "DB_PASSWORD") | default (randAlphaNum 32 | b64enc) }}
 {{- end }}

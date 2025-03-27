@@ -3,11 +3,10 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: devhub
-  labels: {{- include "Devhub.labels" . | nindent 4 }}
+  labels:
+    {{- include "Devhub.labels" . | nindent 4 }}
 spec:
-  podSelector:
-    matchLabels:
-      {{- include "Devhub.selectorLabels" . | nindent 6 }}
+  podSelector: {}
   policyTypes:
     - Ingress
     - Egress
