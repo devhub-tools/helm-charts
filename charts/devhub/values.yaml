@@ -19,15 +19,15 @@ devhub:
     emailHeader: ""
 
   database:
-    # -- Database connection port (defaults to `5432`).
-    port: 5432
+    # -- Secret name that contains the database connection details. Must have `host`, `user`, `password`, and `dbname`. May contain `port` (defaults to 5432).
+    secret: ""
     ssl:
       # -- Use `require` or `verify` to enable SSL. Disabled by default.
       mode: disabled
-    # -- Secret name that contains the database CA cert. Must have `ca.crt`.
-    caSecret: ""
-    # -- Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`.
-    clientCertSecret: ""
+      # -- Secret name that contains the database CA cert. Must have `ca.crt`.
+      caSecret: ""
+      # -- Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`.
+      clientCertSecret: ""
 
   proxy:
     # command: ""

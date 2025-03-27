@@ -164,10 +164,13 @@ should render deployment with custom values:
                 - mountPath: /etc/secrets/app
                   name: config
                   readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
                 - mountPath: /etc/secrets/ca
                   name: database-ca
                   readOnly: true
-                - mountPath: /etc/secrets/db
+                - mountPath: /etc/secrets/client-cert
                   name: database-client-cert
                   readOnly: true
                 - mountPath: /etc/secrets/proxy
@@ -248,10 +251,13 @@ should render deployment with custom values:
                 - mountPath: /etc/secrets/app
                   name: config
                   readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
                 - mountPath: /etc/secrets/ca
                   name: database-ca
                   readOnly: true
-                - mountPath: /etc/secrets/db
+                - mountPath: /etc/secrets/client-cert
                   name: database-client-cert
                   readOnly: true
                 - mountPath: /etc/secrets/proxy
@@ -299,10 +305,13 @@ should render deployment with custom values:
                 - mountPath: /etc/secrets/app
                   name: config
                   readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
                 - mountPath: /etc/secrets/ca
                   name: database-ca
                   readOnly: true
-                - mountPath: /etc/secrets/db
+                - mountPath: /etc/secrets/client-cert
                   name: database-client-cert
                   readOnly: true
                 - mountPath: /etc/secrets/proxy
@@ -319,12 +328,15 @@ should render deployment with custom values:
             - name: config
               secret:
                 secretName: devhub-config
+            - name: database-config
+              secret:
+                secretName: devhub-private-postgres-app
             - name: database-ca
               secret:
-                secretName: devhub-postgres-ca
+                secretName: devhub-private-postgres-ca
             - name: database-client-cert
               secret:
-                secretName: devhub-postgres-app
+                secretName: devhub-private-postgres-client-cert
             - name: proxy-tls
               secret:
                 secretName: proxy-tls
@@ -401,6 +413,9 @@ should render deployment with default values:
                 - mountPath: /etc/secrets/app
                   name: config
                   readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
             - image: ghcr.io/devhub-tools/query-parser:v1.0.0
               imagePullPolicy: IfNotPresent
               name: query-parser
@@ -466,6 +481,9 @@ should render deployment with default values:
                 - mountPath: /etc/secrets/app
                   name: config
                   readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
             - command:
                 - ./bin/devhub
                 - eval
@@ -498,9 +516,15 @@ should render deployment with default values:
                 - mountPath: /etc/secrets/app
                   name: config
                   readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
           securityContext: {}
           serviceAccountName: devhub
           volumes:
             - name: config
               secret:
-                secretName: null
+                secretName: devhub-config
+            - name: database-config
+              secret:
+                secretName: devhub-private-postgres-app

@@ -86,14 +86,19 @@ spec:
           - name: config
             mountPath: "/etc/secrets/app"
             readOnly: true
-          {{- with .Values.devhub.database.caSecret }}
+          {{- with .Values.devhub.database.secret }}
+          - name: database-config
+            mountPath: "/etc/secrets/db"
+            readOnly: true
+          {{- end }}
+          {{- with .Values.devhub.database.ssl.caSecret }}
           - name: database-ca
             mountPath: "/etc/secrets/ca"
             readOnly: true
           {{- end }}
-          {{- with .Values.devhub.database.clientCertSecret }}
+          {{- with .Values.devhub.database.ssl.clientCertSecret }}
           - name: database-client-cert
-            mountPath: "/etc/secrets/db"
+            mountPath: "/etc/secrets/client-cert"
             readOnly: true
           {{- end }}
           {{- with .Values.devhub.proxy.tls.secret }}
@@ -152,12 +157,17 @@ spec:
       - name: config
         secret:
           secretName: {{ .Values.devhub.secret }}
-      {{- with .Values.devhub.database.caSecret }}
+      {{- with .Values.devhub.database.secret }}
+      - name: database-config
+        secret:
+          secretName: {{ . }}
+      {{- end }}
+      {{- with .Values.devhub.database.ssl.caSecret }}
       - name: database-ca
         secret:
           secretName: {{ . }}
       {{- end }}
-      {{- with .Values.devhub.database.clientCertSecret }}
+      {{- with .Values.devhub.database.ssl.clientCertSecret }}
       - name: database-client-cert
         secret:
           secretName: {{ . }}

@@ -7,6 +7,11 @@ release:
 
 tests:
   - it: should render deployment with default values
+    set:
+      devhub:
+        secret: devhub-config
+        database:
+          secret: devhub-private-postgres-app
     asserts:
       - matchSnapshot: {}
 
@@ -17,10 +22,11 @@ tests:
         auth:
           emailHeader: X-Forwarded-Email
         database:
+          secret: devhub-private-postgres-app
           ssl:
             mode: verify
-          caSecret: devhub-postgres-ca
-          clientCertSecret: devhub-postgres-app
+            caSecret: devhub-private-postgres-ca
+            clientCertSecret: devhub-private-postgres-client-cert
         proxy:
           command: "cloudflared tunnel run"
           instructions: "Run the command above to start the proxy"

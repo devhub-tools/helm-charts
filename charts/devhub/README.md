@@ -82,9 +82,9 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | affinity | object | `{}` |  |
 | devhub.agent | bool | `false` | Set to true if setting up an agent. |
 | devhub.auth.emailHeader | string | `""` | Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login. |
-| devhub.database.caSecret | string | `""` | Secret name that contains the database CA cert. Must have `ca.crt`. |
-| devhub.database.clientCertSecret | string | `""` | Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`. |
-| devhub.database.port | int | `5432` | Database connection port (defaults to `5432`). |
+| devhub.database.secret | string | `""` | Secret name that contains the database connection details. Must have `host`, `user`, `password`, and `dbname`. May contain `port` (defaults to 5432). |
+| devhub.database.ssl.caSecret | string | `""` | Secret name that contains the database CA cert. Must have `ca.crt`. |
+| devhub.database.ssl.clientCertSecret | string | `""` | Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`. |
 | devhub.database.ssl.mode | string | `"disabled"` | Use `require` or `verify` to enable SSL. Disabled by default. |
 | devhub.host | string | `"devhub.example.com"` | The hostname of your devhub instance. |
 | devhub.proxy.tls.secret | string | `""` | Secret name that contains the TLS certs to be served by the proxy. Must have both `tls.crt` and `tls.key`. |
