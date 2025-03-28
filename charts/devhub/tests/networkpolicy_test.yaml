@@ -1,0 +1,32 @@
+suite: NetworkPolicy
+templates:
+  - networkpolicy.yaml
+release:
+  name: devhub
+  namespace: devhub
+
+tests:
+  - it: renders network policy with default values
+    set:
+      networkPolicy:
+        create: true
+    asserts:
+      - matchSnapshot: {}
+
+  - it: renders network policy with custom values
+    set:
+      networkPolicy:
+        create: true
+        ingress:
+          - ports:
+              - port: 4000
+        egress:
+          - ports:
+              - port: 4000
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should not create network policy by default
+    asserts:
+      - hasDocuments:
+          count: 0

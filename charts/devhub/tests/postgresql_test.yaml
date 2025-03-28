@@ -1,0 +1,61 @@
+suite: Postgresql
+templates:
+  - postgresql.yaml
+release:
+  name: devhub
+  namespace: devhub
+
+tests:
+  - it: should render postgresql with default values
+    set:
+      postgresql:
+        enabled: true
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render postgresql with custom values
+    set:
+      postgresql:
+        enabled: true
+        cluster:
+          name: postgres
+          instances: 1
+          storage:
+            size: 10Gi
+            storageClass: "my-storage-class"
+          sharedBuffers: "1GB"
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "1Gi"
+            limits:
+              memory: "1Gi"
+          affinity:
+            tolerations:
+              - key: "key"
+                operator: "Equal"
+                value: "value"
+                effect: "NoSchedule"
+          backup:
+            target: "prefer-standby"
+            retentionPolicy: "7d"
+            barmanObjectStore:
+              wal:
+                compression: "bzip2"
+              data:
+                compression: "bzip2"
+
+        scheduledBackup:
+          enabled: true
+          schedule: "0 0 * * *"
+
+    asserts:
+      - matchSnapshot: {}
+
+  - it: doesn't render postgresql if enabled is false
+    set:
+      postgresql:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

@@ -8,55 +8,8 @@ devhub:
   # -- Set to true if setting up an agent.
   agent: false
 
-  # -- Secret configuration for the shared encryption key (if using agents).
-  sharedEncryptionKey: {}
-    # - secret: devhub-config
-    #   key: SHARED_ENCRYPTION_KEY
-
-  # -- See instructions for setting up secret to override application config.
-  databaseConfig:
-    # -- The database encryption key is automatically generated for you, but if you want to create your own it must be a 32 byte base64 encoded string. This can't be changed after install otherwise you will lose all encrypted data.
-    encryptionKey:
-      # -- The secret that contains the database encryption key.
-      secret: internal-secrets
-      # -- The key inside the specified secret to load the encryption key from.
-      key: CLOAK_KEY_V1
-    # -- Secret name and key that contains the database host.
-    host:
-      secret: internal-secrets
-      key: DB_HOSTNAME
-    # -- Secret name and key that contains the database name (defaults to `devhub`).
-    name:
-      secret: internal-secrets
-      key: DB_NAME
-    # -- Secret name and key that contains the database user.
-    user:
-      secret: internal-secrets
-      key: DB_USERNAME
-    # -- Secret name and key that contains the database password.
-    password:
-      secret: internal-secrets
-      key: DB_PASSWORD
-    # -- Secret name and key that contains the database port (defaults to `5432`).
-    port:
-      secret: internal-secrets
-      key: DB_PORT
-    ssl:
-      # -- Use `require` or `verify` to enable SSL. Disabled by default.
-      mode: disabled # require, verify
-    # -- Secret name and key that contains the CA cert.
-    caCert: {}
-    #   secret: postgres-ca
-    #   key: ca.crt
-    # -- Secret name and key that contains the client private key.
-    clientKey: {}
-    #   secret: postgres-server
-    #   key: tls.key
-    # -- Secret name and key that contains the client cert.
-    clientCert: {}
-    #   secret: postgres-server
-    #   key: tls.crt
-
+  # -- Secret name that contains the application config. See full docs for required keys.
+  secret: ""
 
   # -- The hostname of your devhub instance.
   host: devhub.example.com
@@ -65,9 +18,23 @@ devhub:
     # -- Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login.
     emailHeader: ""
 
-terradesk:
-  pluginCache:
-    enabled: true
+  database:
+    # -- Secret name that contains the database connection details. Must have `host`, `user`, `password`, and `dbname`. May contain `port` (defaults to 5432).
+    secret: ""
+    ssl:
+      # -- Use `require` or `verify` to enable SSL. Disabled by default.
+      mode: disabled
+      # -- Secret name that contains the database CA cert. Must have `ca.crt`.
+      caSecret: ""
+      # -- Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`.
+      clientCertSecret: ""
+
+  proxy:
+    # command: ""
+    # instructions: ""
+    tls:
+      # -- Secret name that contains the TLS certs to be served by the proxy. Must have both `tls.crt` and `tls.key`.
+      secret: ""
 
 image:
   repository: ghcr.io/devhub-tools/devhub
@@ -87,15 +54,6 @@ requestTracer:
     tag: v1.0.0
     pullPolicy: IfNotPresent
 
-postgresql:
-  # -- Set to false to use an external database. See instructions to configure the connection with `devhub.databaseConfig`.
-  enabled: true
-  auth:
-    database: devhub
-    existingSecret: internal-secrets
-    secretKeys:
-      adminPasswordKey: DB_PASSWORD
-
 service:
   type: ClusterIP
 
@@ -103,6 +61,32 @@ ingressRoute:
   # -- If you have Traefik installed in your cluster you can configure an IngressRoute: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute
   enabled: false
   tls: {}
+
+networkPolicy:
+  # -- Set to true to create a network policy (disabled by default).
+  create: false
+  # @ignored
+  ingress:
+    - ports:
+      - port: 4000
+        protocol: TCP
+  # @ignored
+  egress:
+    - ports:
+      - port: 53
+        protocol: TCP
+      - port: 53
+        protocol: UDP
+      to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+    # allow internet egress (depending on your k8s setup you may need to exclude internal IPs)
+    - ports:
+      - protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
 
 imagePullSecrets: []
 
@@ -137,3 +121,23 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+postgresql:
+  # -- Set to true to use a pre-configured CloudNativePG cluster. See instructions to configure the connection with `devhub.databaseConfig`.
+  enabled: false
+  cluster:
+    name: postgres
+    instances: 2
+    storage:
+      size: 4Gi
+      storageClass: ""
+    sharedBuffers: "256MB"
+    resources:
+      requests:
+        cpu: "20m"
+      limits:
+        memory: "1Gi"
+  scheduledBackup:
+    enabled: false
+    # The cron schedule for the backup. Defaults to daily.
+    schedule: "0 0 0 * * *"

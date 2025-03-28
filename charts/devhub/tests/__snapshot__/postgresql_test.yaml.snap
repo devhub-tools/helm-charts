@@ -1,0 +1,119 @@
+should render postgresql with custom values:
+  1: |
+    apiVersion: postgresql.cnpg.io/v1
+    kind: Cluster
+    metadata:
+      annotations:
+        prometheus.io/port: metrics
+        prometheus.io/scheme: https
+        prometheus.io/scrape: "true"
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        app.kubernetes.io/version: v1.5.1
+        helm.sh/chart: devhub-2.1.0
+      name: postgres
+      namespace: devhub
+    spec:
+      affinity:
+        tolerations:
+          - effect: NoSchedule
+            key: key
+            operator: Equal
+            value: value
+      backup:
+        barmanObjectStore:
+          data:
+            compression: bzip2
+          wal:
+            compression: bzip2
+        retentionPolicy: 7d
+        target: prefer-standby
+      bootstrap:
+        initdb:
+          database: devhub
+          owner: devhub
+      instances: 1
+      managed:
+        roles:
+          - createrole: true
+            ensure: present
+            login: true
+            name: devhub
+            replication: true
+      postgresql:
+        parameters:
+          shared_buffers: 1GB
+        pg_hba:
+          - hostssl all all all scram-sha-256
+      primaryUpdateStrategy: unsupervised
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 20m
+          memory: 1Gi
+      storage:
+        size: 10Gi
+        storageClass: my-storage-class
+  2: |
+    apiVersion: postgresql.cnpg.io/v1
+    kind: ScheduledBackup
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        app.kubernetes.io/version: v1.5.1
+        helm.sh/chart: devhub-2.1.0
+      name: scheduled-backup
+      namespace: devhub
+    spec:
+      backupOwnerReference: self
+      cluster:
+        name: postgres
+      schedule: 0 0 * * *
+should render postgresql with default values:
+  1: |
+    apiVersion: postgresql.cnpg.io/v1
+    kind: Cluster
+    metadata:
+      annotations:
+        prometheus.io/port: metrics
+        prometheus.io/scheme: https
+        prometheus.io/scrape: "true"
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        app.kubernetes.io/version: v1.5.1
+        helm.sh/chart: devhub-2.1.0
+      name: postgres
+      namespace: devhub
+    spec:
+      bootstrap:
+        initdb:
+          database: devhub
+          owner: devhub
+      instances: 2
+      managed:
+        roles:
+          - createrole: true
+            ensure: present
+            login: true
+            name: devhub
+            replication: true
+      postgresql:
+        parameters:
+          shared_buffers: 256MB
+        pg_hba:
+          - hostssl all all all scram-sha-256
+      primaryUpdateStrategy: unsupervised
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: 20m
+      storage:
+        size: 4Gi

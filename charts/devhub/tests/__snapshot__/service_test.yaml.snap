@@ -1,0 +1,28 @@
+should create service by default:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        custom-annotation: custom-value
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        app.kubernetes.io/version: v1.5.1
+        helm.sh/chart: devhub-2.1.0
+      name: devhub
+    spec:
+      ports:
+        - name: http
+          port: 80
+          protocol: TCP
+          targetPort: http
+        - name: postgres-proxy
+          port: 5432
+          protocol: TCP
+          targetPort: postgres-proxy
+      selector:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/name: devhub
+      type: ClusterIP

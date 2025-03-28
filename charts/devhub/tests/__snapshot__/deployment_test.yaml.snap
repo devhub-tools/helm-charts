@@ -1,0 +1,530 @@
+should render deployment with agent:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        app.kubernetes.io/version: v1.5.1
+        helm.sh/chart: devhub-2.1.0
+      name: devhub
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 0
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: devhub
+          app.kubernetes.io/name: devhub
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/instance: devhub
+            app.kubernetes.io/name: devhub
+        spec:
+          containers:
+            - env:
+                - name: APP_HOST
+                  value: devhub.example.com
+                - name: APP_VERSION
+                  value: v1.5.1
+                - name: DB_SSL
+                  value: disabled
+                - name: AGENT
+                  value: "true"
+                - name: AGENT_CONFIG_FILE
+                  value: /etc/secrets/agent-config.json
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+              image: ghcr.io/devhub-tools/devhub:v1.5.1
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                httpGet:
+                  path: /_health
+                  port: http
+                initialDelaySeconds: 60
+                periodSeconds: 10
+              name: devhub
+              ports:
+                - containerPort: 4000
+                  name: http
+                  protocol: TCP
+                - containerPort: 54320
+                  name: postgres-proxy
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /_health
+                  port: http
+                initialDelaySeconds: 5
+                periodSeconds: 5
+              resources: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /etc/secrets/app
+                  name: config
+                  readOnly: true
+          securityContext: {}
+          serviceAccountName: devhub
+          volumes:
+            - name: config
+              secret:
+                secretName: devhub-config
+should render deployment with custom values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        app.kubernetes.io/version: v1.5.1
+        helm.sh/chart: devhub-2.1.0
+      name: devhub
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 0
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: devhub
+          app.kubernetes.io/name: devhub
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/instance: devhub
+            app.kubernetes.io/name: devhub
+        spec:
+          containers:
+            - env:
+                - name: APP_HOST
+                  value: devhub.example.com
+                - name: APP_VERSION
+                  value: v1.5.1
+                - name: DB_SSL
+                  value: verify
+                - name: AUTH_EMAIL_HEADER
+                  value: X-Forwarded-Email
+                - name: PROXY_COMMAND
+                  value: cloudflared tunnel run
+                - name: PROXY_INSTRUCTIONS
+                  value: Run the command above to start the proxy
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+              image: ghcr.io/devhub-tools/devhub:v1.5.1
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                httpGet:
+                  path: /_health
+                  port: http
+                initialDelaySeconds: 60
+                periodSeconds: 10
+              name: devhub
+              ports:
+                - containerPort: 4000
+                  name: http
+                  protocol: TCP
+                - containerPort: 54320
+                  name: postgres-proxy
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /_health
+                  port: http
+                initialDelaySeconds: 5
+                periodSeconds: 5
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 20m
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /etc/secrets/app
+                  name: config
+                  readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
+                - mountPath: /etc/secrets/ca
+                  name: database-ca
+                  readOnly: true
+                - mountPath: /etc/secrets/client-cert
+                  name: database-client-cert
+                  readOnly: true
+                - mountPath: /etc/secrets/proxy
+                  name: proxy-tls
+                  readOnly: true
+            - image: ghcr.io/devhub-tools/query-parser:v1.0.0
+              imagePullPolicy: IfNotPresent
+              name: query-parser
+              ports:
+                - containerPort: 50051
+                  name: http
+                  protocol: TCP
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+            - image: ghcr.io/devhub-tools/request-tracer:v1.0.0
+              imagePullPolicy: IfNotPresent
+              name: request-tracer
+              ports:
+                - containerPort: 50052
+                  name: http
+                  protocol: TCP
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+          initContainers:
+            - command:
+                - ./bin/devhub
+                - eval
+                - Devhub.Release.wait_for_database_ready()
+              env:
+                - name: APP_HOST
+                  value: devhub.example.com
+                - name: APP_VERSION
+                  value: v1.5.1
+                - name: DB_SSL
+                  value: verify
+                - name: AUTH_EMAIL_HEADER
+                  value: X-Forwarded-Email
+                - name: PROXY_COMMAND
+                  value: cloudflared tunnel run
+                - name: PROXY_INSTRUCTIONS
+                  value: Run the command above to start the proxy
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+              image: ghcr.io/devhub-tools/devhub:v1.5.1
+              imagePullPolicy: IfNotPresent
+              name: database-ready
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 20m
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /etc/secrets/app
+                  name: config
+                  readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
+                - mountPath: /etc/secrets/ca
+                  name: database-ca
+                  readOnly: true
+                - mountPath: /etc/secrets/client-cert
+                  name: database-client-cert
+                  readOnly: true
+                - mountPath: /etc/secrets/proxy
+                  name: proxy-tls
+                  readOnly: true
+            - command:
+                - ./bin/devhub
+                - eval
+                - Devhub.Release.migrate()
+              env:
+                - name: APP_HOST
+                  value: devhub.example.com
+                - name: APP_VERSION
+                  value: v1.5.1
+                - name: DB_SSL
+                  value: verify
+                - name: AUTH_EMAIL_HEADER
+                  value: X-Forwarded-Email
+                - name: PROXY_COMMAND
+                  value: cloudflared tunnel run
+                - name: PROXY_INSTRUCTIONS
+                  value: Run the command above to start the proxy
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+              image: ghcr.io/devhub-tools/devhub:v1.5.1
+              imagePullPolicy: IfNotPresent
+              name: devhub-migrations
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 20m
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /etc/secrets/app
+                  name: config
+                  readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
+                - mountPath: /etc/secrets/ca
+                  name: database-ca
+                  readOnly: true
+                - mountPath: /etc/secrets/client-cert
+                  name: database-client-cert
+                  readOnly: true
+                - mountPath: /etc/secrets/proxy
+                  name: proxy-tls
+                  readOnly: true
+          securityContext: {}
+          serviceAccountName: devhub
+          tolerations:
+            - effect: NoSchedule
+              key: key
+              operator: Exists
+              value: value
+          volumes:
+            - name: config
+              secret:
+                secretName: devhub-config
+            - name: database-config
+              secret:
+                secretName: devhub-private-postgres-app
+            - name: database-ca
+              secret:
+                secretName: devhub-private-postgres-ca
+            - name: database-client-cert
+              secret:
+                secretName: devhub-private-postgres-client-cert
+            - name: proxy-tls
+              secret:
+                secretName: proxy-tls
+should render deployment with default values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub
+        app.kubernetes.io/version: v1.5.1
+        helm.sh/chart: devhub-2.1.0
+      name: devhub
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 0
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: devhub
+          app.kubernetes.io/name: devhub
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/instance: devhub
+            app.kubernetes.io/name: devhub
+        spec:
+          containers:
+            - env:
+                - name: APP_HOST
+                  value: devhub.example.com
+                - name: APP_VERSION
+                  value: v1.5.1
+                - name: DB_SSL
+                  value: disabled
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+              image: ghcr.io/devhub-tools/devhub:v1.5.1
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                httpGet:
+                  path: /_health
+                  port: http
+                initialDelaySeconds: 60
+                periodSeconds: 10
+              name: devhub
+              ports:
+                - containerPort: 4000
+                  name: http
+                  protocol: TCP
+                - containerPort: 54320
+                  name: postgres-proxy
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /_health
+                  port: http
+                initialDelaySeconds: 5
+                periodSeconds: 5
+              resources: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /etc/secrets/app
+                  name: config
+                  readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
+            - image: ghcr.io/devhub-tools/query-parser:v1.0.0
+              imagePullPolicy: IfNotPresent
+              name: query-parser
+              ports:
+                - containerPort: 50051
+                  name: http
+                  protocol: TCP
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+            - image: ghcr.io/devhub-tools/request-tracer:v1.0.0
+              imagePullPolicy: IfNotPresent
+              name: request-tracer
+              ports:
+                - containerPort: 50052
+                  name: http
+                  protocol: TCP
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+          initContainers:
+            - command:
+                - ./bin/devhub
+                - eval
+                - Devhub.Release.wait_for_database_ready()
+              env:
+                - name: APP_HOST
+                  value: devhub.example.com
+                - name: APP_VERSION
+                  value: v1.5.1
+                - name: DB_SSL
+                  value: disabled
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+              image: ghcr.io/devhub-tools/devhub:v1.5.1
+              imagePullPolicy: IfNotPresent
+              name: database-ready
+              resources: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /etc/secrets/app
+                  name: config
+                  readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
+            - command:
+                - ./bin/devhub
+                - eval
+                - Devhub.Release.migrate()
+              env:
+                - name: APP_HOST
+                  value: devhub.example.com
+                - name: APP_VERSION
+                  value: v1.5.1
+                - name: DB_SSL
+                  value: disabled
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+              image: ghcr.io/devhub-tools/devhub:v1.5.1
+              imagePullPolicy: IfNotPresent
+              name: devhub-migrations
+              resources: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /etc/secrets/app
+                  name: config
+                  readOnly: true
+                - mountPath: /etc/secrets/db
+                  name: database-config
+                  readOnly: true
+          securityContext: {}
+          serviceAccountName: devhub
+          volumes:
+            - name: config
+              secret:
+                secretName: devhub-config
+            - name: database-config
+              secret:
+                secretName: devhub-private-postgres-app

@@ -1,6 +1,6 @@
 # devhub
 
-![Version: 2.0.6](https://img.shields.io/badge/Version-2.0.6-informational?style=flag) ![AppVersion: v1.4.3](https://img.shields.io/badge/AppVersion-v1.4.3-informational?style=flag)
+![Version: 2.1.0](https://img.shields.io/badge/Version-2.1.0-informational?style=flag) ![AppVersion: v1.5.1](https://img.shields.io/badge/AppVersion-v1.5.1-informational?style=flag)
 
 Instructions for running self hosted install of Devhub. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 
@@ -15,7 +15,7 @@ Instructions for running self hosted install of Devhub. Currently only k8s insta
 
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 2.0.0 \
+      --version 2.1.0 \
       --namespace devhub \
       --create-namespace
     ```
@@ -54,26 +54,13 @@ Instructions for running self hosted install of Devhub. Currently only k8s insta
 
     helm install devhub devhub/devhub \
       -f values.yaml \
-      --version 2.0.0 \
+      --version 2.1.0 \
       --namespace devhub
     ```
 
 ### Using Agents
 
 Agents are a secondary install that connect to the main instance. This allows your main instance to connect into other networks.
-
-1. When using agents you need to make sure to define a shared encryption key for all installs.
-
-    ```yaml
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: devhub-config
-      namespace: devhub
-    type: Opaque
-    data:
-      SHARED_ENCRYPTION_KEY: # 32 random bytes base64 encoded
-    ```
 
 1. Create another helm installation and set the agent flag
 
@@ -83,12 +70,8 @@ Agents are a secondary install that connect to the main instance. This allows yo
     helm install devhub-agent devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
-      --set postgresql.enabled=false \
-      --set devhub.agentConfig.secret=devhub-config \
-      --set devhub.agentConfig.key=agent-config.json \
-      --set devhub.sharedEncryptionKey.secret=devhub-config \
-      --set devhub.sharedEncryptionKey.key=SHARED_ENCRYPTION_KEY \
-      --version 2.0.0 \
+      --set devhub.secret=devhub-config \
+      --version 2.1.0 \
       --namespace devhub
     ```
 
@@ -99,34 +82,33 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | affinity | object | `{}` |  |
 | devhub.agent | bool | `false` | Set to true if setting up an agent. |
 | devhub.auth.emailHeader | string | `""` | Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login. |
-| devhub.databaseConfig | object | `{"caCert":{},"clientCert":{},"clientKey":{},"encryptionKey":{"key":"CLOAK_KEY_V1","secret":"internal-secrets"},"host":{"key":"DB_HOSTNAME","secret":"internal-secrets"},"name":{"key":"DB_NAME","secret":"internal-secrets"},"password":{"key":"DB_PASSWORD","secret":"internal-secrets"},"port":{"key":"DB_PORT","secret":"internal-secrets"},"ssl":{"mode":"disabled"},"user":{"key":"DB_USERNAME","secret":"internal-secrets"}}` | See instructions for setting up secret to override application config. |
-| devhub.databaseConfig.caCert | object | `{}` | Secret name and key that contains the CA cert. |
-| devhub.databaseConfig.clientCert | object | `{}` | Secret name and key that contains the client cert. |
-| devhub.databaseConfig.clientKey | object | `{}` | Secret name and key that contains the client private key. |
-| devhub.databaseConfig.encryptionKey | object | `{"key":"CLOAK_KEY_V1","secret":"internal-secrets"}` | The database encryption key is automatically generated for you, but if you want to create your own it must be a 32 byte base64 encoded string. This can't be changed after install otherwise you will lose all encrypted data. |
-| devhub.databaseConfig.encryptionKey.key | string | `"CLOAK_KEY_V1"` | The key inside the specified secret to load the encryption key from. |
-| devhub.databaseConfig.encryptionKey.secret | string | `"internal-secrets"` | The secret that contains the database encryption key. |
-| devhub.databaseConfig.host | object | `{"key":"DB_HOSTNAME","secret":"internal-secrets"}` | Secret name and key that contains the database host. |
-| devhub.databaseConfig.name | object | `{"key":"DB_NAME","secret":"internal-secrets"}` | Secret name and key that contains the database name (defaults to `devhub`). |
-| devhub.databaseConfig.password | object | `{"key":"DB_PASSWORD","secret":"internal-secrets"}` | Secret name and key that contains the database password. |
-| devhub.databaseConfig.port | object | `{"key":"DB_PORT","secret":"internal-secrets"}` | Secret name and key that contains the database port (defaults to `5432`). |
-| devhub.databaseConfig.ssl.mode | string | `"disabled"` | Use `require` or `verify` to enable SSL. Disabled by default. |
-| devhub.databaseConfig.user | object | `{"key":"DB_USERNAME","secret":"internal-secrets"}` | Secret name and key that contains the database user. |
+| devhub.database.secret | string | `""` | Secret name that contains the database connection details. Must have `host`, `user`, `password`, and `dbname`. May contain `port` (defaults to 5432). |
+| devhub.database.ssl.caSecret | string | `""` | Secret name that contains the database CA cert. Must have `ca.crt`. |
+| devhub.database.ssl.clientCertSecret | string | `""` | Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`. |
+| devhub.database.ssl.mode | string | `"disabled"` | Use `require` or `verify` to enable SSL. Disabled by default. |
 | devhub.host | string | `"devhub.example.com"` | The hostname of your devhub instance. |
-| devhub.sharedEncryptionKey | object | `{}` | Secret configuration for the shared encryption key (if using agents). |
+| devhub.proxy.tls.secret | string | `""` | Secret name that contains the TLS certs to be served by the proxy. Must have both `tls.crt` and `tls.key`. |
+| devhub.secret | string | `""` | Secret name that contains the application config. See full docs for required keys. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/devhub-tools/devhub"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
 | ingressRoute.enabled | bool | `false` | If you have Traefik installed in your cluster you can configure an IngressRoute: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute |
 | ingressRoute.tls | object | `{}` |  |
+| networkPolicy.create | bool | `false` | Set to true to create a network policy (disabled by default). |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
 | podSecurityContext | object | `{}` |  |
-| postgresql.auth.database | string | `"devhub"` |  |
-| postgresql.auth.existingSecret | string | `"internal-secrets"` |  |
-| postgresql.auth.secretKeys.adminPasswordKey | string | `"DB_PASSWORD"` |  |
-| postgresql.enabled | bool | `true` | Set to false to use an external database. See instructions to configure the connection with `devhub.databaseConfig`. |
+| postgresql.cluster.instances | int | `2` |  |
+| postgresql.cluster.name | string | `"postgres"` |  |
+| postgresql.cluster.resources.limits.memory | string | `"1Gi"` |  |
+| postgresql.cluster.resources.requests.cpu | string | `"20m"` |  |
+| postgresql.cluster.sharedBuffers | string | `"256MB"` |  |
+| postgresql.cluster.storage.size | string | `"4Gi"` |  |
+| postgresql.cluster.storage.storageClass | string | `""` |  |
+| postgresql.enabled | bool | `false` | Set to true to use a pre-configured CloudNativePG cluster. See instructions to configure the connection with `devhub.databaseConfig`. |
+| postgresql.scheduledBackup.enabled | bool | `false` |  |
+| postgresql.scheduledBackup.schedule | string | `"0 0 0 * * *"` |  |
 | queryParser.image.pullPolicy | string | `"IfNotPresent"` |  |
 | queryParser.image.repository | string | `"ghcr.io/devhub-tools/query-parser"` |  |
 | queryParser.image.tag | string | `"v1.0.0"` |  |
@@ -144,7 +126,6 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
-| terradesk.pluginCache.enabled | bool | `true` |  |
 | tolerations | list | `[]` |  |
 
 ----------------------------------------------

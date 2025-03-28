@@ -1,0 +1,19 @@
+suite: IngressRoute
+templates:
+  - ingressroute.yaml
+release:
+  name: devhub
+  namespace: devhub
+
+tests:
+  - it: should render ingressroute
+    set:
+      ingressRoute:
+        enabled: true
+    asserts:
+      - matchSnapshot: {}
+
+  - it: does not render ingressroute if enabled is false
+    asserts:
+      - hasDocuments:
+          count: 0

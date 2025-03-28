@@ -43,19 +43,23 @@ spec:
             httpGet:
               path: /_health
               port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /_health
               port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          env:
+          env: &env
             - name: APP_HOST
               value: {{ .Values.devhub.host }}
             - name: APP_VERSION
               value: {{ .Values.image.tag | default .Chart.AppVersion }}
             - name: DB_SSL
-              value: {{ .Values.devhub.databaseConfig.ssl.mode | quote }}
+              value: {{ .Values.devhub.database.ssl.mode | quote }}
             {{- with .Values.devhub.auth.emailHeader }}
             - name: AUTH_EMAIL_HEADER
               value: {{ . | quote }}
@@ -68,12 +72,6 @@ spec:
             - name: PROXY_INSTRUCTIONS
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.devhub.proxy.tls }}
-            - name: PROXY_TLS_CERT_PATH
-              value: /etc/secrets/proxy-tls.crt
-            - name: PROXY_TLS_KEY_PATH
-              value: /etc/secrets/proxy-tls.key
-            {{- end }}
             {{- if .Values.devhub.agent }}
             - name: AGENT
               value: "true"
@@ -84,10 +82,30 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          volumeMounts:
+          volumeMounts: &volumeMounts
           - name: config
-            mountPath: "/etc/secrets"
+            mountPath: "/etc/secrets/app"
             readOnly: true
+          {{- with .Values.devhub.database.secret }}
+          - name: database-config
+            mountPath: "/etc/secrets/db"
+            readOnly: true
+          {{- end }}
+          {{- with .Values.devhub.database.ssl.caSecret }}
+          - name: database-ca
+            mountPath: "/etc/secrets/ca"
+            readOnly: true
+          {{- end }}
+          {{- with .Values.devhub.database.ssl.clientCertSecret }}
+          - name: database-client-cert
+            mountPath: "/etc/secrets/client-cert"
+            readOnly: true
+          {{- end }}
+          {{- with .Values.devhub.proxy.tls.secret }}
+          - name: proxy-tls
+            mountPath: "/etc/secrets/proxy"
+            readOnly: true
+          {{- end }}
       {{- if not .Values.devhub.agent }}
         - name: query-parser
           securityContext:
@@ -108,6 +126,19 @@ spec:
               containerPort: 50052
               protocol: TCP
       initContainers:
+        - name: database-ready
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - ./bin/devhub
+            - eval
+            - Devhub.Release.wait_for_database_ready()
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env: *env
+          volumeMounts: *volumeMounts
         - name: devhub-migrations
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -119,108 +150,33 @@ spec:
             - Devhub.Release.migrate()
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          env:
-            - name: DB_SSL
-              value: {{ .Values.devhub.databaseConfig.ssl.mode | quote }}
-          volumeMounts:
-          - name: config
-            mountPath: "/etc/secrets"
-            readOnly: true
+          env: *env
+          volumeMounts: *volumeMounts
       {{- end }}
       volumes:
       - name: config
-        projected:
-          sources:
-          - secret:
-              name: internal-secrets
-              items:
-              - path: SECRET_KEY_BASE
-                key: SECRET_KEY_BASE
-          - secret:
-              name: internal-secrets
-              items:
-              - path: SIGNING_KEY
-                key: SIGNING_KEY
-          {{- with .Values.devhub.sharedEncryptionKey }}
-          - secret:
-              name: {{ .secret }}
-              items:
-              - path: SHARED_ENCRYPTION_KEY
-                key: {{ .key }}
-          {{- end }}
-          {{- if .Values.devhub.agent }}
-          - secret:
-              name: {{ .Values.devhub.agentConfig.secret }}
-              items:
-              - path: agent-config.json
-                key: {{ .Values.devhub.agentConfig.key }}
-          {{- else }}
-          - secret:
-              name: {{ .Values.devhub.databaseConfig.encryptionKey.secret }}
-              items:
-              - path: CLOAK_KEY_V1
-                key: {{ .Values.devhub.databaseConfig.encryptionKey.key }}
-          - secret:
-              name: {{ .Values.devhub.databaseConfig.host.secret }}
-              items:
-              - path: DB_HOSTNAME
-                key: {{ .Values.devhub.databaseConfig.host.key }}
-          - secret:
-              name: {{ .Values.devhub.databaseConfig.name.secret }}
-              items:
-              - path: DB_NAME
-                key: {{ .Values.devhub.databaseConfig.name.key }}
-          - secret:
-              name: {{ .Values.devhub.databaseConfig.user.secret }}
-              items:
-              - path: DB_USERNAME
-                key: {{ .Values.devhub.databaseConfig.user.key }}
-          - secret:
-              name: {{ .Values.devhub.databaseConfig.password.secret }}
-              items:
-              - path: DB_PASSWORD
-                key: {{ .Values.devhub.databaseConfig.password.key }}
-          - secret:
-              name: {{ .Values.devhub.databaseConfig.port.secret }}
-              items:
-              - path: DB_PORT
-                key: {{ .Values.devhub.databaseConfig.port.key }}
-          {{- with .Values.devhub.databaseConfig.caCert }}
-          - secret:
-              name: {{ .secret }}
-              items:
-              - path: ca.cert
-                key: {{ .key }}
-          {{- end }}
-          {{- with .Values.devhub.databaseConfig.clientKey }}
-          - secret:
-              name: {{ .secret }}
-              items:
-              - path: client.key
-                key: {{ .key }}
-          {{- end }}
-          {{- with .Values.devhub.databaseConfig.clientCert }}
-          - secret:
-              name: {{ .secret }}
-              items:
-              - path: client.cert
-                key: {{ .key }}
-          {{- end }}
-          {{- with .Values.devhub.proxy.tls.cert }}
-          - secret:
-              name: {{ .secret }}
-              items:
-              - path: proxy-tls.crt
-                key: {{ .key }}
-          {{- end }}
-          {{- with .Values.devhub.proxy.tls.key }}
-          - secret:
-              name: {{ .secret }}
-              items:
-              - path: proxy-tls.key
-                key: {{ .key }}
-          {{- end }}
-          {{- end }}
+        secret:
+          secretName: {{ .Values.devhub.secret }}
+      {{- with .Values.devhub.database.secret }}
+      - name: database-config
+        secret:
+          secretName: {{ . }}
+      {{- end }}
+      {{- with .Values.devhub.database.ssl.caSecret }}
+      - name: database-ca
+        secret:
+          secretName: {{ . }}
+      {{- end }}
+      {{- with .Values.devhub.database.ssl.clientCertSecret }}
+      - name: database-client-cert
+        secret:
+          secretName: {{ . }}
+      {{- end }}
+      {{- with .Values.devhub.proxy.tls.secret }}
+      - name: proxy-tls
+        secret:
+          secretName: {{ . }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

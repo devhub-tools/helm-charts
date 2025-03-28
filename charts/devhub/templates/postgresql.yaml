@@ -1,0 +1,73 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ .Values.postgresql.cluster.name }}
+  labels:
+    {{- include "Devhub.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: metrics
+    prometheus.io/scheme: https
+
+spec:
+  instances: {{ .Values.postgresql.cluster.instances }}
+
+  bootstrap:
+    initdb:
+      database: devhub
+      owner: devhub
+
+  postgresql:
+    pg_hba:
+      - hostssl all all all scram-sha-256
+    parameters:
+      shared_buffers: {{ .Values.postgresql.cluster.sharedBuffers }}
+
+  managed:
+    roles:
+      - name: devhub
+        ensure: present
+        login: true
+        createrole: true
+        replication: true
+
+  primaryUpdateStrategy: unsupervised
+
+  storage:
+    size: {{ .Values.postgresql.cluster.storage.size }}
+    {{- if .Values.postgresql.cluster.storage.storageClass }}
+    storageClass: {{ .Values.postgresql.cluster.storage.storageClass }}
+    {{- end }}
+
+  {{- with .Values.postgresql.cluster.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+  {{- with .Values.postgresql.cluster.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+  {{- with .Values.postgresql.cluster.backup }}
+  backup:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+{{- if .Values.postgresql.scheduledBackup.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: scheduled-backup
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "Devhub.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.postgresql.scheduledBackup.schedule }}"
+  backupOwnerReference: self
+  cluster:
+    name: {{ .Values.postgresql.cluster.name }}
+{{- end }}
+{{- end }}

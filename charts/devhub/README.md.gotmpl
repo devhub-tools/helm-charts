@@ -17,7 +17,7 @@
 
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 2.0.0 \
+      --version {{ template "chart.version" . }} \
       --namespace devhub \
       --create-namespace
     ```
@@ -56,26 +56,13 @@
 
     helm install devhub devhub/devhub \
       -f values.yaml \
-      --version 2.0.0 \
+      --version {{ template "chart.version" . }} \
       --namespace devhub
     ```
 
 ### Using Agents
 
 Agents are a secondary install that connect to the main instance. This allows your main instance to connect into other networks.
-
-1. When using agents you need to make sure to define a shared encryption key for all installs.
-
-    ```yaml
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: devhub-config
-      namespace: devhub
-    type: Opaque
-    data:
-      SHARED_ENCRYPTION_KEY: # 32 random bytes base64 encoded
-    ```
 
 1. Create another helm installation and set the agent flag
 
@@ -85,12 +72,8 @@ Agents are a secondary install that connect to the main instance. This allows yo
     helm install devhub-agent devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
-      --set postgresql.enabled=false \
-      --set devhub.agentConfig.secret=devhub-config \
-      --set devhub.agentConfig.key=agent-config.json \
-      --set devhub.sharedEncryptionKey.secret=devhub-config \
-      --set devhub.sharedEncryptionKey.key=SHARED_ENCRYPTION_KEY \
-      --version 2.0.0 \
+      --set devhub.secret=devhub-config \
+      --version {{ template "chart.version" . }} \
       --namespace devhub
     ```
 
