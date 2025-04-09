@@ -9,8 +9,8 @@ should create service by default:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v1.5.1
-        helm.sh/chart: devhub-2.1.0
+        app.kubernetes.io/version: v2.0.2
+        helm.sh/chart: devhub-2.1.1
       name: devhub
     spec:
       ports:

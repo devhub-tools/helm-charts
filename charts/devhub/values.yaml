@@ -19,7 +19,7 @@ devhub:
     emailHeader: ""
 
   database:
-    # -- Secret name that contains the database connection details. Must have `host`, `user`, `password`, and `dbname`. May contain `port` (defaults to 5432).
+    # -- Secret name that contains the database connection details. Must have `host`, `user`, and `password`. May contain `dbname` and `port` (defaults to 5432).
     secret: ""
     ssl:
       # -- Use `require` or `verify` to enable SSL. Disabled by default.
@@ -129,7 +129,7 @@ postgresql:
     name: postgres
     instances: 2
     storage:
-      size: 4Gi
+      size: 10Gi
       storageClass: ""
     sharedBuffers: "256MB"
     resources:
@@ -141,3 +141,5 @@ postgresql:
     enabled: false
     # The cron schedule for the backup. Defaults to daily.
     schedule: "0 0 0 * * *"
+
+extraEnvVars: []

@@ -25,7 +25,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: devhub
-  namespace: devhub
+  namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
   name: devhub

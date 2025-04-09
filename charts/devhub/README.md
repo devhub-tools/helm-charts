@@ -104,7 +104,7 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | postgresql.cluster.resources.limits.memory | string | `"1Gi"` |  |
 | postgresql.cluster.resources.requests.cpu | string | `"20m"` |  |
 | postgresql.cluster.sharedBuffers | string | `"256MB"` |  |
-| postgresql.cluster.storage.size | string | `"4Gi"` |  |
+| postgresql.cluster.storage.size | string | `"10Gi"` |  |
 | postgresql.cluster.storage.storageClass | string | `""` |  |
 | postgresql.enabled | bool | `false` | Set to true to use a pre-configured CloudNativePG cluster. See instructions to configure the connection with `devhub.databaseConfig`. |
 | postgresql.scheduledBackup.enabled | bool | `false` |  |

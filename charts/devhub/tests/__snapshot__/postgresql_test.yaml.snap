@@ -11,8 +11,8 @@ should render postgresql with custom values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v1.5.1
-        helm.sh/chart: devhub-2.1.0
+        app.kubernetes.io/version: v2.0.2
+        helm.sh/chart: devhub-2.1.1
       name: postgres
       namespace: devhub
     spec:
@@ -47,6 +47,7 @@ should render postgresql with custom values:
           shared_buffers: 1GB
         pg_hba:
           - hostssl all all all scram-sha-256
+      primaryUpdateMethod: switchover
       primaryUpdateStrategy: unsupervised
       resources:
         limits:
@@ -65,8 +66,8 @@ should render postgresql with custom values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v1.5.1
-        helm.sh/chart: devhub-2.1.0
+        app.kubernetes.io/version: v2.0.2
+        helm.sh/chart: devhub-2.1.1
       name: scheduled-backup
       namespace: devhub
     spec:
@@ -87,8 +88,8 @@ should render postgresql with default values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v1.5.1
-        helm.sh/chart: devhub-2.1.0
+        app.kubernetes.io/version: v2.0.2
+        helm.sh/chart: devhub-2.1.1
       name: postgres
       namespace: devhub
     spec:
@@ -109,6 +110,7 @@ should render postgresql with default values:
           shared_buffers: 256MB
         pg_hba:
           - hostssl all all all scram-sha-256
+      primaryUpdateMethod: switchover
       primaryUpdateStrategy: unsupervised
       resources:
         limits:
@@ -116,4 +118,4 @@ should render postgresql with default values:
         requests:
           cpu: 20m
       storage:
-        size: 4Gi
+        size: 10Gi

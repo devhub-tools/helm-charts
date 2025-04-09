@@ -75,13 +75,15 @@ spec:
             {{- if .Values.devhub.agent }}
             - name: AGENT
               value: "true"
-            - name: AGENT_CONFIG_FILE
-              value: /etc/secrets/agent-config.json
             {{- end }}
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            {{- range .Values.extraEnvVars }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
           volumeMounts: &volumeMounts
           - name: config
             mountPath: "/etc/secrets/app"
