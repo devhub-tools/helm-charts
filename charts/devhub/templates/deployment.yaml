@@ -64,6 +64,10 @@ spec:
             - name: AUTH_EMAIL_HEADER
               value: {{ . | quote }}
             {{- end }}
+            {{- with .Values.devhub.auth.groupsHeader }}
+            - name: AUTH_GROUPS_HEADER
+              value: {{ . | quote }}
+            {{- end }}
             {{- with .Values.devhub.proxy.command }}
             - name: PROXY_COMMAND
               value: {{ . | quote }}

@@ -17,6 +17,8 @@ devhub:
   auth:
     # -- Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login.
     emailHeader: ""
+    # -- If authenticating with an auth proxy you can configure a header that can be used to add roles to the user.
+    groupsHeader: ""
 
   database:
     # -- Secret name that contains the database connection details. Must have `host`, `user`, and `password`. May contain `dbname` and `port` (defaults to 5432).

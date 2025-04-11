@@ -11,8 +11,8 @@ should render postgresql with custom values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.0.2
-        helm.sh/chart: devhub-2.1.1
+        app.kubernetes.io/version: v2.0.5
+        helm.sh/chart: devhub-2.1.2
       name: postgres
       namespace: devhub
     spec:
@@ -66,8 +66,8 @@ should render postgresql with custom values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.0.2
-        helm.sh/chart: devhub-2.1.1
+        app.kubernetes.io/version: v2.0.5
+        helm.sh/chart: devhub-2.1.2
       name: scheduled-backup
       namespace: devhub
     spec:
@@ -88,8 +88,8 @@ should render postgresql with default values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.0.2
-        helm.sh/chart: devhub-2.1.1
+        app.kubernetes.io/version: v2.0.5
+        helm.sh/chart: devhub-2.1.2
       name: postgres
       namespace: devhub
     spec:

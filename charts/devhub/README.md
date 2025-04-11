@@ -1,6 +1,6 @@
 # devhub
 
-![Version: 2.1.0](https://img.shields.io/badge/Version-2.1.0-informational?style=flag) ![AppVersion: v1.5.1](https://img.shields.io/badge/AppVersion-v1.5.1-informational?style=flag)
+![Version: 2.1.2](https://img.shields.io/badge/Version-2.1.2-informational?style=flag) ![AppVersion: v2.0.5](https://img.shields.io/badge/AppVersion-v2.0.5-informational?style=flag)
 
 Instructions for running self hosted install of Devhub. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 
@@ -15,7 +15,7 @@ Instructions for running self hosted install of Devhub. Currently only k8s insta
 
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 2.1.0 \
+      --version 2.1.2 \
       --namespace devhub \
       --create-namespace
     ```
@@ -54,7 +54,7 @@ Instructions for running self hosted install of Devhub. Currently only k8s insta
 
     helm install devhub devhub/devhub \
       -f values.yaml \
-      --version 2.1.0 \
+      --version 2.1.2 \
       --namespace devhub
     ```
 
@@ -71,7 +71,7 @@ Agents are a secondary install that connect to the main instance. This allows yo
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
       --set devhub.secret=devhub-config \
-      --version 2.1.0 \
+      --version 2.1.2 \
       --namespace devhub
     ```
 
@@ -82,13 +82,15 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | affinity | object | `{}` |  |
 | devhub.agent | bool | `false` | Set to true if setting up an agent. |
 | devhub.auth.emailHeader | string | `""` | Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login. |
-| devhub.database.secret | string | `""` | Secret name that contains the database connection details. Must have `host`, `user`, `password`, and `dbname`. May contain `port` (defaults to 5432). |
+| devhub.auth.groupsHeader | string | `""` | If authenticating with an auth proxy you can configure a header that can be used to add roles to the user. |
+| devhub.database.secret | string | `""` | Secret name that contains the database connection details. Must have `host`, `user`, and `password`. May contain `dbname` and `port` (defaults to 5432). |
 | devhub.database.ssl.caSecret | string | `""` | Secret name that contains the database CA cert. Must have `ca.crt`. |
 | devhub.database.ssl.clientCertSecret | string | `""` | Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`. |
 | devhub.database.ssl.mode | string | `"disabled"` | Use `require` or `verify` to enable SSL. Disabled by default. |
 | devhub.host | string | `"devhub.example.com"` | The hostname of your devhub instance. |
 | devhub.proxy.tls.secret | string | `""` | Secret name that contains the TLS certs to be served by the proxy. Must have both `tls.crt` and `tls.key`. |
 | devhub.secret | string | `""` | Secret name that contains the application config. See full docs for required keys. |
+| extraEnvVars | list | `[]` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/devhub-tools/devhub"` |  |
 | image.tag | string | `""` |  |

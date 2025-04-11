@@ -7,8 +7,8 @@ should render rbac:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.0.2
-        helm.sh/chart: devhub-2.1.1
+        app.kubernetes.io/version: v2.0.5
+        helm.sh/chart: devhub-2.1.2
       name: devhub
     rules:
       - apiGroups:
@@ -42,8 +42,8 @@ should render rbac:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.0.2
-        helm.sh/chart: devhub-2.1.1
+        app.kubernetes.io/version: v2.0.5
+        helm.sh/chart: devhub-2.1.2
       name: devhub
     roleRef:
       apiGroup: rbac.authorization.k8s.io

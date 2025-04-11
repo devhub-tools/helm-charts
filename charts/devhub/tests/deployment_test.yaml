@@ -21,6 +21,7 @@ tests:
         secret: devhub-config
         auth:
           emailHeader: X-Forwarded-Email
+          groupsHeader: X-Forwarded-Groups
         database:
           secret: devhub-private-postgres-app
           ssl:
