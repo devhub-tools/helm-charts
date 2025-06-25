@@ -9,7 +9,7 @@ devhub:
   agent: false
 
   # -- Secret name that contains the application config. See full docs for required keys.
-  secret: ""
+  secret: config
 
   # -- The hostname of your devhub instance.
   host: devhub.example.com
@@ -22,12 +22,12 @@ devhub:
 
   database:
     # -- Secret name that contains the database connection details. Must have `host`, `user`, and `password`. May contain `dbname` and `port` (defaults to 5432).
-    secret: ""
+    secret: postgres-app
     ssl:
       # -- Use `require` or `verify` to enable SSL. Disabled by default.
       mode: disabled
       # -- Secret name that contains the database CA cert. Must have `ca.crt`.
-      caSecret: ""
+      caSecret: postgres-ca
       # -- Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`.
       clientCertSecret: ""
 
@@ -65,15 +65,38 @@ ingressRoute:
   tls: {}
 
 networkPolicy:
-  # -- Set to true to create a network policy (disabled by default).
+  # -- Set to true to create a network policy (disabled by default). An example network policy is provided in the values.yaml file.
   create: false
   # @ignored
   ingress:
+    # allow web traffic
     - ports:
       - port: 4000
         protocol: TCP
+
+    # allow database access inside the namespace
+    - ports:
+        - port: 5432
+          protocol: TCP
+      from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: devhub
+
+    # allow cloudnative-pg to manage the database
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: cnpg-system
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: cloudnative-pg
+      ports:
+        - port: 8000
+        - port: 5432
   # @ignored
   egress:
+    # allow dns access
     - ports:
       - port: 53
         protocol: TCP
@@ -83,6 +106,16 @@ networkPolicy:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: kube-system
+
+    # allow database access inside the namespace
+    - ports:
+        - port: 5432
+          protocol: TCP
+      to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: devhub
+
     # allow internet egress (depending on your k8s setup you may need to exclude internal IPs)
     - ports:
       - protocol: TCP
@@ -125,7 +158,7 @@ tolerations: []
 affinity: {}
 
 postgresql:
-  # -- Set to true to use a pre-configured CloudNativePG cluster. See instructions to configure the connection with `devhub.databaseConfig`.
+  # -- Set to true to use a pre-configured database. The CloudNativePG operator is required. Please see the docs for configuration options: https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster.
   enabled: false
   cluster:
     name: postgres
@@ -139,9 +172,14 @@ postgresql:
         cpu: "20m"
       limits:
         memory: "1Gi"
+    primaryUpdateStrategy: unsupervised
+    primaryUpdateMethod: switchover
+    affinity: {}
+    backup: {}
   scheduledBackup:
+    # -- Set to true to enable scheduled backups. You must also provide the required configuration in `postgresql.cluster.backup`.
     enabled: false
-    # The cron schedule for the backup. Defaults to daily.
+    # -- The cron schedule for the backup. Defaults to daily. See docs for more information: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format
     schedule: "0 0 0 * * *"
 
 extraEnvVars: []

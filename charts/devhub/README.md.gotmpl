@@ -10,11 +10,90 @@
 
 ## Installation
 
+1. Create a secret with the required application config
+
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: config # if you use a different name, you must set the `devhub.secret` value
+      namespace: devhub
+    data:
+      CLOAK_KEY_V1: ... # 32 secure random bytes (Base64 encoded), used as an encryption key for field level encryption
+      SECRET_KEY_BASE: ... # secret key used for signing cookies
+      SIGNING_KEY: ... # a ECDSA private key, using the P256 curve (used for signing JWTs)
+    ```
+
+1. Setup ingress
+
+    You can use a Traefik ingressroute by setting `ingressRoute.enabled=true` if you have Traefik installed, otherwise configure your traffic
+    to route to http://devhub.devhub.svc.cluster.local on port 80.
+
+1. Setup a database
+
+    See the docs below to either use a pre-configured database or your own.
+
 1. Install with helm
 
     ```bash
     helm repo add devhub https://devhub-tools.github.io/helm-charts
 
+    # see below for different installation options
+    ```
+
+### Use a pre-configured database
+
+1. Install the CloudNativePG operator and wait for it to be ready.
+
+    ```bash
+    helm repo add cnpg https://cloudnative-pg.github.io/charts
+
+    helm upgrade --install cnpg \
+      --namespace cnpg-system \
+      --create-namespace \
+      cnpg/cloudnative-pg
+
+    kubectl rollout status deployment --watch -n cnpg-system cnpg-cloudnative-pg
+    ```
+
+1. Enable the postgresql setting to create a database.
+
+    ```bash
+    helm install devhub devhub/devhub \
+      --set devhub.host=devhub.example.com \
+      --set postgresql.enabled=true \
+      --version {{ template "chart.version" . }} \
+      --namespace devhub \
+      --create-namespace
+    ```
+
+### Bring your own database
+
+1. Ensure the wal_level is set to logical in your database and that the database user has replication permissions.
+
+    ```sql
+    ALTER SYSTEM SET wal_level='logical';
+    ALTER USER devhub WITH REPLICATION;
+    ```
+
+    You must also restart your database for the changes to take effect.
+
+
+1. Create a secret with the database connection information.
+
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: postgres-app # if you use a different name, you must set the `devhub.database.secret`
+      namespace: devhub
+    data:
+      host: ...
+      user: ...
+      password: ...
+    ```
+
+    ```bash
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
       --version {{ template "chart.version" . }} \
@@ -22,53 +101,27 @@
       --create-namespace
     ```
 
-1. Setup ingress
-
-    You can use a Traefik ingressroute by setting `ingressRoute.enabled=true` if you have Traefik installed, otherwise configure your traffic
-    to connect to http://devhub.devhub.svc.cluster.local on port 80.
-
-### Define Postgres Database
-
-1. Create a secret with the database connection information and provide the details in a values.yaml file (see full values available below).
-
-    ```yaml
-    devhub:
-      host: devhub.example.com
-      databaseConfig:
-        host:
-          secret: database-secret
-          key: host
-        user:
-          secret: database-secret
-          key: user
-        password:
-          secret: database-secret
-          key: password
-
-    postgresql:
-      enabled: false
-    ```
-
-1. Install helm with the postgres flag disabled
-
-    ```bash
-    helm repo add devhub https://devhub-tools.github.io/helm-charts
-
-    helm install devhub devhub/devhub \
-      -f values.yaml \
-      --version {{ template "chart.version" . }} \
-      --namespace devhub
-    ```
-
 ### Using Agents
 
 Agents are a secondary install that connect to the main instance. This allows your main instance to connect into other networks.
 
-1. Create another helm installation and set the agent flag
+1. Create an agent in your main instance and download the config: https://devhub.example.com/settings/agents
+
+1. Create a secret with the provided agent config
+
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: agent-config
+      namespace: devhub
+    data:
+      agent-config.json: ... # the agent config you downloaded
+    ```
+
+1. Install the helm chart inside your destination network
 
     ```bash
-    helm repo add devhub https://devhub-tools.github.io/helm-charts
-
     helm install devhub-agent devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \

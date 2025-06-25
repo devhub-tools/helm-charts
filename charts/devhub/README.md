@@ -1,77 +1,129 @@
 # devhub
 
-![Version: 2.1.2](https://img.shields.io/badge/Version-2.1.2-informational?style=flag) ![AppVersion: v2.0.5](https://img.shields.io/badge/AppVersion-v2.0.5-informational?style=flag)
+![Version: 2.11.0](https://img.shields.io/badge/Version-2.11.0-informational?style=flag) ![AppVersion: v2.11.1](https://img.shields.io/badge/AppVersion-v2.11.1-informational?style=flag)
 
-Instructions for running self hosted install of Devhub. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
+Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 
-**Homepage:** <https://devhub.tools>
+**Homepage:** <https://querydesk.com>
 
 ## Installation
+
+1. Create a secret with the required application config
+
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: config # if you use a different name, you must set the `devhub.secret` value
+      namespace: devhub
+    data:
+      CLOAK_KEY_V1: ... # 32 secure random bytes (Base64 encoded), used as an encryption key for field level encryption
+      SECRET_KEY_BASE: ... # secret key used for signing cookies
+      SIGNING_KEY: ... # a ECDSA private key, using the P256 curve (used for signing JWTs)
+    ```
+
+1. Setup ingress
+
+    You can use a Traefik ingressroute by setting `ingressRoute.enabled=true` if you have Traefik installed, otherwise configure your traffic
+    to route to http://devhub.devhub.svc.cluster.local on port 80.
+
+1. Setup a database
+
+    See the docs below to either use a pre-configured database or your own.
 
 1. Install with helm
 
     ```bash
     helm repo add devhub https://devhub-tools.github.io/helm-charts
 
+    # see below for different installation options
+    ```
+
+### Use a pre-configured database
+
+1. Install the CloudNativePG operator and wait for it to be ready.
+
+    ```bash
+    helm repo add cnpg https://cloudnative-pg.github.io/charts
+
+    helm upgrade --install cnpg \
+      --namespace cnpg-system \
+      --create-namespace \
+      cnpg/cloudnative-pg
+
+    kubectl rollout status deployment --watch -n cnpg-system cnpg-cloudnative-pg
+    ```
+
+1. Enable the postgresql setting to create a database.
+
+    ```bash
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 2.1.2 \
+      --set postgresql.enabled=true \
+      --version 2.11.0 \
       --namespace devhub \
       --create-namespace
     ```
 
-1. Setup ingress
+### Bring your own database
 
-    You can use a Traefik ingressroute by setting `ingressRoute.enabled=true` if you have Traefik installed, otherwise configure your traffic
-    to connect to http://devhub.devhub.svc.cluster.local on port 80.
+1. Ensure the wal_level is set to logical in your database and that the database user has replication permissions.
 
-### Define Postgres Database
-
-1. Create a secret with the database connection information and provide the details in a values.yaml file (see full values available below).
-
-    ```yaml
-    devhub:
-      host: devhub.example.com
-      databaseConfig:
-        host:
-          secret: database-secret
-          key: host
-        user:
-          secret: database-secret
-          key: user
-        password:
-          secret: database-secret
-          key: password
-
-    postgresql:
-      enabled: false
+    ```sql
+    ALTER SYSTEM SET wal_level='logical';
+    ALTER USER devhub WITH REPLICATION;
     ```
 
-1. Install helm with the postgres flag disabled
+    You must also restart your database for the changes to take effect.
+
+1. Create a secret with the database connection information.
+
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: postgres-app # if you use a different name, you must set the `devhub.database.secret`
+      namespace: devhub
+    data:
+      host: ...
+      user: ...
+      password: ...
+    ```
 
     ```bash
-    helm repo add devhub https://devhub-tools.github.io/helm-charts
-
     helm install devhub devhub/devhub \
-      -f values.yaml \
-      --version 2.1.2 \
-      --namespace devhub
+      --set devhub.host=devhub.example.com \
+      --version 2.11.0 \
+      --namespace devhub \
+      --create-namespace
     ```
 
 ### Using Agents
 
 Agents are a secondary install that connect to the main instance. This allows your main instance to connect into other networks.
 
-1. Create another helm installation and set the agent flag
+1. Create an agent in your main instance and download the config: https://devhub.example.com/settings/agents
+
+1. Create a secret with the provided agent config
+
+    ```yaml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: agent-config
+      namespace: devhub
+    data:
+      agent-config.json: ... # the agent config you downloaded
+    ```
+
+1. Install the helm chart inside your destination network
 
     ```bash
-    helm repo add devhub https://devhub-tools.github.io/helm-charts
-
     helm install devhub-agent devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
       --set devhub.secret=devhub-config \
-      --version 2.1.2 \
+      --version 2.11.0 \
       --namespace devhub
     ```
 
@@ -83,13 +135,13 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | devhub.agent | bool | `false` | Set to true if setting up an agent. |
 | devhub.auth.emailHeader | string | `""` | Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login. |
 | devhub.auth.groupsHeader | string | `""` | If authenticating with an auth proxy you can configure a header that can be used to add roles to the user. |
-| devhub.database.secret | string | `""` | Secret name that contains the database connection details. Must have `host`, `user`, and `password`. May contain `dbname` and `port` (defaults to 5432). |
-| devhub.database.ssl.caSecret | string | `""` | Secret name that contains the database CA cert. Must have `ca.crt`. |
+| devhub.database.secret | string | `"postgres-app"` | Secret name that contains the database connection details. Must have `host`, `user`, and `password`. May contain `dbname` and `port` (defaults to 5432). |
+| devhub.database.ssl.caSecret | string | `"postgres-ca"` | Secret name that contains the database CA cert. Must have `ca.crt`. |
 | devhub.database.ssl.clientCertSecret | string | `""` | Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`. |
 | devhub.database.ssl.mode | string | `"disabled"` | Use `require` or `verify` to enable SSL. Disabled by default. |
 | devhub.host | string | `"devhub.example.com"` | The hostname of your devhub instance. |
 | devhub.proxy.tls.secret | string | `""` | Secret name that contains the TLS certs to be served by the proxy. Must have both `tls.crt` and `tls.key`. |
-| devhub.secret | string | `""` | Secret name that contains the application config. See full docs for required keys. |
+| devhub.secret | string | `"config"` | Secret name that contains the application config. See full docs for required keys. |
 | extraEnvVars | list | `[]` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/devhub-tools/devhub"` |  |
@@ -97,20 +149,24 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | imagePullSecrets | list | `[]` |  |
 | ingressRoute.enabled | bool | `false` | If you have Traefik installed in your cluster you can configure an IngressRoute: https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute |
 | ingressRoute.tls | object | `{}` |  |
-| networkPolicy.create | bool | `false` | Set to true to create a network policy (disabled by default). |
+| networkPolicy.create | bool | `false` | Set to true to create a network policy (disabled by default). An example network policy is provided in the values.yaml file. |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
 | podSecurityContext | object | `{}` |  |
+| postgresql.cluster.affinity | object | `{}` |  |
+| postgresql.cluster.backup | object | `{}` |  |
 | postgresql.cluster.instances | int | `2` |  |
 | postgresql.cluster.name | string | `"postgres"` |  |
+| postgresql.cluster.primaryUpdateMethod | string | `"switchover"` |  |
+| postgresql.cluster.primaryUpdateStrategy | string | `"unsupervised"` |  |
 | postgresql.cluster.resources.limits.memory | string | `"1Gi"` |  |
 | postgresql.cluster.resources.requests.cpu | string | `"20m"` |  |
 | postgresql.cluster.sharedBuffers | string | `"256MB"` |  |
 | postgresql.cluster.storage.size | string | `"10Gi"` |  |
 | postgresql.cluster.storage.storageClass | string | `""` |  |
-| postgresql.enabled | bool | `false` | Set to true to use a pre-configured CloudNativePG cluster. See instructions to configure the connection with `devhub.databaseConfig`. |
-| postgresql.scheduledBackup.enabled | bool | `false` |  |
-| postgresql.scheduledBackup.schedule | string | `"0 0 0 * * *"` |  |
+| postgresql.enabled | bool | `false` | Set to true to use a pre-configured database. The CloudNativePG operator is required. Please see the docs for configuration options: https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster. |
+| postgresql.scheduledBackup.enabled | bool | `false` | Set to true to enable scheduled backups. You must also provide the required configuration in `postgresql.cluster.backup`. |
+| postgresql.scheduledBackup.schedule | string | `"0 0 0 * * *"` | The cron schedule for the backup. Defaults to daily. See docs for more information: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format |
 | queryParser.image.pullPolicy | string | `"IfNotPresent"` |  |
 | queryParser.image.repository | string | `"ghcr.io/devhub-tools/query-parser"` |  |
 | queryParser.image.tag | string | `"v1.0.0"` |  |
