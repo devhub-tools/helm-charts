@@ -1,6 +1,8 @@
 # Devhub Helm Charts
 
-https://devhub.tools (support@devhub.tools)
+Devhub is a suite of tools that includes QueryDesk.
+
+https://querydesk.com (support@devhub.tools)
 
 ## Usage
 
