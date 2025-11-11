@@ -10,6 +10,14 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
 
 1. Create a secret with the required application config
 
+    | Key | Description |
+    |-----|-------------|
+    | `CLOAK_KEY_V1` | A base64 encoded 32 byte random value. Used as an encryption key for field level encryption. |
+    | `SECRET_KEY_BASE` | A base64 encoded 64 byte random value. Used for signing cookies. |
+    | `SIGNING_KEY` | A base64 encoded ECDSA private key using the prime256v1 curve. Used for signing JWT tokens. |
+
+    The following example shows how to generate these values and create the secret using kubectl:
+
     ```bash
     CLOAK_KEY_V1=$(openssl rand -base64 32  | base64)
     SECRET_KEY_BASE=$(openssl rand -hex 64  | base64)
