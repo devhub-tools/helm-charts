@@ -1,6 +1,6 @@
 # devhub
 
-![Version: 2.11.0](https://img.shields.io/badge/Version-2.11.0-informational?style=flag) ![AppVersion: v2.17.0](https://img.shields.io/badge/AppVersion-v2.17.0-informational?style=flag)
+![Version: 2.17.0](https://img.shields.io/badge/Version-2.17.0-informational?style=flag) ![AppVersion: v2.17.0](https://img.shields.io/badge/AppVersion-v2.17.0-informational?style=flag)
 
 Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 
@@ -10,16 +10,22 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
 
 1. Create a secret with the required application config
 
-    ```yaml
+    ```bash
+    CLOAK_KEY_V1=$(openssl rand -base64 32  | base64)
+    SECRET_KEY_BASE=$(openssl rand -hex 64  | base64)
+    SIGNING_KEY=$(openssl ecparam -name prime256v1 -genkey -noout | openssl ec 2>/dev/null | base64 )
+
+    kubectl apply -f - <<EOF
     apiVersion: v1
     kind: Secret
     metadata:
-      name: config # if you use a different name, you must set the `devhub.secret` value
+      name: config
       namespace: devhub
     data:
-      CLOAK_KEY_V1: ... # 32 secure random bytes (Base64 encoded), used as an encryption key for field level encryption
-      SECRET_KEY_BASE: ... # secret key used for signing cookies
-      SIGNING_KEY: ... # a ECDSA private key, using the P256 curve (used for signing JWTs)
+      CLOAK_KEY_V1: $CLOAK_KEY_V1
+      SECRET_KEY_BASE: $SECRET_KEY_BASE
+      SIGNING_KEY: $SIGNING_KEY
+    EOF
     ```
 
 1. Setup ingress
@@ -60,7 +66,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set postgresql.enabled=true \
-      --version 2.11.0 \
+      --version 2.17.0 \
       --namespace devhub \
       --create-namespace
     ```
@@ -93,7 +99,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     ```bash
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 2.11.0 \
+      --version 2.17.0 \
       --namespace devhub \
       --create-namespace
     ```
@@ -123,7 +129,7 @@ Agents are a secondary install that connect to the main instance. This allows yo
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
       --set devhub.secret=devhub-config \
-      --version 2.11.0 \
+      --version 2.17.0 \
       --namespace devhub
     ```
 
