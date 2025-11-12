@@ -21,9 +21,9 @@
     The following example shows how to generate these values and create the secret using kubectl:
 
     ```bash
-    CLOAK_KEY_V1=$(openssl rand -base64 32  | base64)
-    SECRET_KEY_BASE=$(openssl rand -hex 64  | base64)
-    SIGNING_KEY=$(openssl ecparam -name prime256v1 -genkey -noout | openssl ec 2>/dev/null | base64 )
+    CLOAK_KEY_V1=$(openssl rand -base64 32 | base64)
+    SECRET_KEY_BASE=$(openssl rand -hex 64 | base64)
+    SIGNING_KEY=$(openssl ecparam -name prime256v1 -genkey -noout | openssl ec 2>/dev/null | base64)
 
     kubectl apply -f - <<EOF
     apiVersion: v1
