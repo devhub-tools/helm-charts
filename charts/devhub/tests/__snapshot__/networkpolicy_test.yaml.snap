@@ -7,8 +7,8 @@ renders network policy with custom values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.0.5
-        helm.sh/chart: devhub-2.1.2
+        app.kubernetes.io/version: v2.18.0
+        helm.sh/chart: devhub-2.18.0
       name: devhub
     spec:
       egress:
@@ -30,8 +30,8 @@ renders network policy with default values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.0.5
-        helm.sh/chart: devhub-2.1.2
+        app.kubernetes.io/version: v2.18.0
+        helm.sh/chart: devhub-2.18.0
       name: devhub
     spec:
       egress:
@@ -45,6 +45,13 @@ renders network policy with default values:
                 matchLabels:
                   kubernetes.io/metadata.name: kube-system
         - ports:
+            - port: 5432
+              protocol: TCP
+          to:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: devhub
+        - ports:
             - protocol: TCP
           to:
             - ipBlock:
@@ -53,6 +60,23 @@ renders network policy with default values:
         - ports:
             - port: 4000
               protocol: TCP
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: devhub
+          ports:
+            - port: 5432
+              protocol: TCP
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: cnpg-system
+              podSelector:
+                matchLabels:
+                  app.kubernetes.io/name: cloudnative-pg
+          ports:
+            - port: 8000
+            - port: 5432
       podSelector: {}
       policyTypes:
         - Ingress
