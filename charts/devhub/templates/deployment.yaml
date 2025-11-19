@@ -92,6 +92,7 @@ spec:
           - name: config
             mountPath: "/etc/secrets/app"
             readOnly: true
+          {{- if not .Values.devhub.agent }}
           {{- with .Values.devhub.database.secret }}
           - name: database-config
             mountPath: "/etc/secrets/db"
@@ -106,6 +107,7 @@ spec:
           - name: database-client-cert
             mountPath: "/etc/secrets/client-cert"
             readOnly: true
+          {{- end }}
           {{- end }}
           {{- with .Values.devhub.proxy.tls.secret }}
           - name: proxy-tls
@@ -163,6 +165,7 @@ spec:
       - name: config
         secret:
           secretName: {{ .Values.devhub.secret }}
+      {{- if not .Values.devhub.agent }}
       {{- with .Values.devhub.database.secret }}
       - name: database-config
         secret:
@@ -177,6 +180,7 @@ spec:
       - name: database-client-cert
         secret:
           secretName: {{ . }}
+      {{- end }}
       {{- end }}
       {{- with .Values.devhub.proxy.tls.secret }}
       - name: proxy-tls
