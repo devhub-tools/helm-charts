@@ -73,24 +73,12 @@ should render deployment with agent:
                 - mountPath: /etc/secrets/app
                   name: config
                   readOnly: true
-                - mountPath: /etc/secrets/db
-                  name: database-config
-                  readOnly: true
-                - mountPath: /etc/secrets/ca
-                  name: database-ca
-                  readOnly: true
           securityContext: {}
           serviceAccountName: devhub
           volumes:
             - name: config
               secret:
                 secretName: devhub-config
-            - name: database-config
-              secret:
-                secretName: postgres-app
-            - name: database-ca
-              secret:
-                secretName: postgres-ca
 should render deployment with custom values:
   1: |
     apiVersion: apps/v1

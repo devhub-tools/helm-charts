@@ -1,6 +1,6 @@
 # devhub
 
-![Version: 2.17.0](https://img.shields.io/badge/Version-2.17.0-informational?style=flag) ![AppVersion: v2.17.0](https://img.shields.io/badge/AppVersion-v2.17.0-informational?style=flag)
+![Version: 2.18.0](https://img.shields.io/badge/Version-2.18.0-informational?style=flag) ![AppVersion: v2.18.0](https://img.shields.io/badge/AppVersion-v2.18.0-informational?style=flag)
 
 Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 
@@ -74,7 +74,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set postgresql.enabled=true \
-      --version 2.17.0 \
+      --version 2.18.0 \
       --namespace devhub \
       --create-namespace
     ```
@@ -107,7 +107,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     ```bash
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 2.17.0 \
+      --version 2.18.0 \
       --namespace devhub \
       --create-namespace
     ```
@@ -137,7 +137,7 @@ Agents are a secondary install that connect to the main instance. This allows yo
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
       --set devhub.secret=devhub-config \
-      --version 2.17.0 \
+      --version 2.18.0 \
       --namespace devhub
     ```
 
