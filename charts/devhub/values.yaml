@@ -47,7 +47,7 @@ image:
 queryParser:
   image:
     repository: ghcr.io/devhub-tools/query-parser
-    tag: v1.0.0
+    tag: v2.0.0
     pullPolicy: IfNotPresent
 
 requestTracer:

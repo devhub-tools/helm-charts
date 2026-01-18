@@ -1,6 +1,6 @@
 # devhub
 
-![Version: 2.18.0](https://img.shields.io/badge/Version-2.18.0-informational?style=flag) ![AppVersion: v2.18.0](https://img.shields.io/badge/AppVersion-v2.18.0-informational?style=flag)
+![Version: 2.19.0](https://img.shields.io/badge/Version-2.19.0-informational?style=flag) ![AppVersion: v2.19.0](https://img.shields.io/badge/AppVersion-v2.19.0-informational?style=flag)
 
 Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
 
@@ -74,7 +74,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set postgresql.enabled=true \
-      --version 2.18.0 \
+      --version 2.19.0 \
       --namespace devhub \
       --create-namespace
     ```
@@ -107,7 +107,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     ```bash
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 2.18.0 \
+      --version 2.19.0 \
       --namespace devhub \
       --create-namespace
     ```
@@ -137,7 +137,7 @@ Agents are a secondary install that connect to the main instance. This allows yo
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
       --set devhub.secret=devhub-config \
-      --version 2.18.0 \
+      --version 2.19.0 \
       --namespace devhub
     ```
 
@@ -183,7 +183,7 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | postgresql.scheduledBackup.schedule | string | `"0 0 0 * * *"` | The cron schedule for the backup. Defaults to daily. See docs for more information: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format |
 | queryParser.image.pullPolicy | string | `"IfNotPresent"` |  |
 | queryParser.image.repository | string | `"ghcr.io/devhub-tools/query-parser"` |  |
-| queryParser.image.tag | string | `"v1.0.0"` |  |
+| queryParser.image.tag | string | `"v2.0.0"` |  |
 | replicaCount | int | `1` |  |
 | requestTracer.image.pullPolicy | string | `"IfNotPresent"` |  |
 | requestTracer.image.repository | string | `"ghcr.io/devhub-tools/request-tracer"` |  |
