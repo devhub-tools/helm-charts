@@ -176,7 +176,7 @@ should render deployment with custom values:
                 - mountPath: /etc/secrets/proxy
                   name: proxy-tls
                   readOnly: true
-            - image: ghcr.io/devhub-tools/query-parser:v1.0.0
+            - image: ghcr.io/devhub-tools/query-parser:v2.2.1
               imagePullPolicy: IfNotPresent
               name: query-parser
               ports:
@@ -423,7 +423,7 @@ should render deployment with default values:
                 - mountPath: /etc/secrets/ca
                   name: database-ca
                   readOnly: true
-            - image: ghcr.io/devhub-tools/query-parser:v1.0.0
+            - image: ghcr.io/devhub-tools/query-parser:v2.2.1
               imagePullPolicy: IfNotPresent
               name: query-parser
               ports:
