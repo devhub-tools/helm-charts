@@ -136,7 +136,7 @@ Agents are a secondary install that connect to the main instance. This allows yo
     helm install devhub-agent devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
-      --set devhub.secret=devhub-config \
+      --set devhub.secret=agent-config \
       --version 2.19.0 \
       --namespace devhub
     ```
