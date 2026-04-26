@@ -118,7 +118,7 @@ spec:
         - name: query-parser
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.queryParser.image.repository }}:{{ .Values.queryParser.image.tag }}"
+          image: "{{ .Values.queryParser.image.repository }}:{{ .Values.queryParser.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.queryParser.image.pullPolicy }}
           ports:
             - name: http
