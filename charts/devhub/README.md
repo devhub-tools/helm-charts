@@ -2,7 +2,7 @@
 
 ![Version: 2.29.1](https://img.shields.io/badge/Version-2.29.1-informational?style=flag) ![AppVersion: v2.29.1](https://img.shields.io/badge/AppVersion-v2.29.1-informational?style=flag)
 
-Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@devhub.tools if you would like additional methods supported.
+Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@querydesk.com if you would like additional methods supported.
 
 **Homepage:** <https://querydesk.com>
 

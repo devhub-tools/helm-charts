@@ -2,7 +2,7 @@
 
 Devhub is a suite of tools that includes QueryDesk.
 
-https://querydesk.com (support@devhub.tools)
+https://querydesk.com (support@querydesk.com)
 
 ## Usage
 
