@@ -7,8 +7,8 @@ should render ingressroute:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.31.2
-        helm.sh/chart: devhub-2.31.2
+        app.kubernetes.io/version: v2.31.3
+        helm.sh/chart: devhub-2.31.3
       name: devhub-http
     spec:
       entryPoints:
