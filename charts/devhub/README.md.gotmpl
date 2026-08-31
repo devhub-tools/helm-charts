@@ -115,6 +115,22 @@
       --create-namespace
     ```
 
+### Configure OIDC
+
+OIDC can be configured in the app under Settings, or declaratively by adding the following keys to the
+application config secret. All three keys are required, if any of them are missing the settings are ignored.
+
+| Key | Description |
+|-----|-------------|
+| `OIDC_DISCOVERY_DOCUMENT_URI` | The discovery document URI of your identity provider, for example `https://accounts.google.com/.well-known/openid-configuration`. |
+| `OIDC_CLIENT_ID` | The client ID issued by your identity provider. |
+| `OIDC_CLIENT_SECRET` | The client secret issued by your identity provider. |
+
+When these are set they take precedence over anything configured in the app, and the OIDC settings page
+becomes read only so it is clear the values are managed by the helm chart.
+
+Configure your identity provider with a redirect URI of `https://devhub.example.com/auth/oidc/callback`.
+
 ### Using Agents
 
 Agents are a secondary install that connect to the main instance. This allows your main instance to connect into other networks.

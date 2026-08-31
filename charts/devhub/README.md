@@ -1,6 +1,6 @@
 # devhub
 
-![Version: 2.42.1](https://img.shields.io/badge/Version-2.42.1-informational?style=flag) ![AppVersion: v2.42.1](https://img.shields.io/badge/AppVersion-v2.42.1-informational?style=flag)
+![Version: 2.32.0](https://img.shields.io/badge/Version-2.32.0-informational?style=flag) ![AppVersion: v2.32.0](https://img.shields.io/badge/AppVersion-v2.32.0-informational?style=flag)
 
 Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@querydesk.com if you would like additional methods supported.
 
@@ -74,7 +74,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set postgresql.enabled=true \
-      --version 2.42.1 \
+      --version 2.32.0 \
       --namespace devhub \
       --create-namespace
     ```
@@ -107,10 +107,45 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     ```bash
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 2.42.1 \
+      --version 2.32.0 \
       --namespace devhub \
       --create-namespace
     ```
+
+### Configure OIDC
+
+OIDC can be configured in the app under Settings, or declaratively through the chart.
+
+Add these keys to the application config secret. The first three are required, if any of them are
+missing the settings are ignored.
+
+| Key | Description |
+|-----|-------------|
+| `OIDC_DISCOVERY_DOCUMENT_URI` | The discovery document URI of your identity provider, for example `https://accounts.google.com/.well-known/openid-configuration`. |
+| `OIDC_CLIENT_ID` | The client ID issued by your identity provider. |
+| `OIDC_CLIENT_SECRET` | The client secret issued by your identity provider. |
+| `OIDC_GROUPS_CLAIM` | Optional. The claim listing a user's groups, which Devhub turns into managed roles. Defaults to `roles`. |
+| `OIDC_SCOPES` | Optional. Space-separated scopes requested at login. Must always include `openid`. Defaults to `openid email`. |
+
+When the required keys are set they take precedence over anything configured in the app, and the OIDC
+settings page becomes read-only so it is clear the values are managed by the helm chart.
+
+Configure your identity provider with a redirect URI of `https://devhub.example.com/auth/oidc/callback`.
+
+#### Group membership
+
+There is no standard claim for group membership, so which one to read depends on your provider:
+
+| Provider | `OIDC_GROUPS_CLAIM` | Notes |
+|----------|---------------------|-------|
+| Microsoft Entra ID | `roles` (the default) | App Roles from the app registration manifest. Entra's `groups` claim sends group object IDs rather than names, so it would create a role per ID. |
+| Okta | `groups` | Configured per application. Depending on your setup the `groups` scope has to be requested as well, by setting `OIDC_SCOPES` to `openid email groups`. |
+
+The values of the claim are used as role names, and the roles they create are managed by the identity
+provider: a user who is no longer in a group loses the matching role the next time they log in.
+
+Devhub only receives a user's name if `profile` is among the requested scopes, so set `OIDC_SCOPES` to
+`openid email profile` if you want names rather than just email addresses.
 
 ### Using Agents
 
@@ -137,7 +172,7 @@ Agents are a secondary install that connect to the main instance. This allows yo
       --set devhub.host=devhub.example.com \
       --set devhub.agent=true \
       --set devhub.secret=agent-config \
-      --version 2.42.1 \
+      --version 2.32.0 \
       --namespace devhub
     ```
 
@@ -184,9 +219,6 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | queryParser.image.pullPolicy | string | `"IfNotPresent"` |  |
 | queryParser.image.repository | string | `"ghcr.io/devhub-tools/query-parser"` |  |
 | replicaCount | int | `1` |  |
-| requestTracer.image.pullPolicy | string | `"IfNotPresent"` |  |
-| requestTracer.image.repository | string | `"ghcr.io/devhub-tools/request-tracer"` |  |
-| requestTracer.image.tag | string | `"v1.0.0"` |  |
 | resources | object | `{}` |  |
 | securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | securityContext.capabilities.drop[0] | string | `"ALL"` |  |

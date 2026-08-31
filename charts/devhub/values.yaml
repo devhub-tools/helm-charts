@@ -49,12 +49,6 @@ queryParser:
     repository: ghcr.io/devhub-tools/query-parser
     pullPolicy: IfNotPresent
 
-requestTracer:
-  image:
-    repository: ghcr.io/devhub-tools/request-tracer
-    tag: v1.0.0
-    pullPolicy: IfNotPresent
-
 service:
   type: ClusterIP
 
