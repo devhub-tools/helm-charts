@@ -115,15 +115,6 @@ spec:
             readOnly: true
           {{- end }}
       {{- if not .Values.devhub.agent }}
-        - name: query-parser
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.queryParser.image.repository }}:{{ .Values.queryParser.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.queryParser.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 50051
-              protocol: TCP
       initContainers:
         - name: database-ready
           securityContext:

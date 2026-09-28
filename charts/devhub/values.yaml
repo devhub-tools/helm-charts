@@ -44,11 +44,6 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-queryParser:
-  image:
-    repository: ghcr.io/devhub-tools/query-parser
-    pullPolicy: IfNotPresent
-
 service:
   type: ClusterIP
 

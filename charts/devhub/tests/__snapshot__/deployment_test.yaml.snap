@@ -176,22 +176,6 @@ should render deployment with custom values:
                 - mountPath: /etc/secrets/proxy
                   name: proxy-tls
                   readOnly: true
-            - image: ghcr.io/devhub-tools/query-parser:v2.43.0
-              imagePullPolicy: IfNotPresent
-              name: query-parser
-              ports:
-                - containerPort: 50051
-                  name: http
-                  protocol: TCP
-              securityContext:
-                allowPrivilegeEscalation: false
-                capabilities:
-                  drop:
-                    - ALL
-                runAsNonRoot: true
-                runAsUser: 1000
-                seccompProfile:
-                  type: RuntimeDefault
           initContainers:
             - command:
                 - ./bin/devhub
@@ -407,22 +391,6 @@ should render deployment with default values:
                 - mountPath: /etc/secrets/ca
                   name: database-ca
                   readOnly: true
-            - image: ghcr.io/devhub-tools/query-parser:v2.43.0
-              imagePullPolicy: IfNotPresent
-              name: query-parser
-              ports:
-                - containerPort: 50051
-                  name: http
-                  protocol: TCP
-              securityContext:
-                allowPrivilegeEscalation: false
-                capabilities:
-                  drop:
-                    - ALL
-                runAsNonRoot: true
-                runAsUser: 1000
-                seccompProfile:
-                  type: RuntimeDefault
           initContainers:
             - command:
                 - ./bin/devhub

@@ -216,8 +216,6 @@ Agents are a secondary install that connect to the main instance. This allows yo
 | postgresql.enabled | bool | `false` | Set to true to use a pre-configured database. The CloudNativePG operator is required. Please see the docs for configuration options: https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-Cluster. |
 | postgresql.scheduledBackup.enabled | bool | `false` | Set to true to enable scheduled backups. You must also provide the required configuration in `postgresql.cluster.backup`. |
 | postgresql.scheduledBackup.schedule | string | `"0 0 0 * * *"` | The cron schedule for the backup. Defaults to daily. See docs for more information: https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format |
-| queryParser.image.pullPolicy | string | `"IfNotPresent"` |  |
-| queryParser.image.repository | string | `"ghcr.io/devhub-tools/query-parser"` |  |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |
 | securityContext.allowPrivilegeEscalation | bool | `false` |  |
