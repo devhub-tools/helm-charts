@@ -1,6 +1,6 @@
 # devhub-tunnel
 
-![Version: 2.44.0](https://img.shields.io/badge/Version-2.44.0-informational?style=flag) ![AppVersion: v2.44.0](https://img.shields.io/badge/AppVersion-v2.44.0-informational?style=flag)
+![Version: 2.44.1](https://img.shields.io/badge/Version-2.44.1-informational?style=flag) ![AppVersion: v2.44.1](https://img.shields.io/badge/AppVersion-v2.44.1-informational?style=flag)
 
 Runs a Devhub Tunnel, which lets Devhub reach databases and the Kubernetes API in a network it cannot connect to directly. The Tunnel only makes outbound connections.
 
@@ -39,7 +39,7 @@ Devhub accepts one instance of a Tunnel at a time, so the chart runs one pod and
     helm repo add devhub https://devhub-tools.github.io/helm-charts
 
     helm install devhub-tunnel devhub/devhub-tunnel \
-      --version 2.44.0 \
+      --version 2.44.1 \
       --namespace devhub-tunnel
     ```
 
@@ -56,7 +56,7 @@ If the Tunnel is only used to reach databases, turn Kubernetes access off:
 ```bash
 helm install devhub-tunnel devhub/devhub-tunnel \
   --set kubernetes.enabled=false \
-  --version 2.44.0 \
+  --version 2.44.1 \
   --namespace devhub-tunnel
 ```
 
@@ -73,7 +73,7 @@ kubectl create secret generic devhub-ca \
 
 helm install devhub-tunnel devhub/devhub-tunnel \
   --set caSecret.name=devhub-ca \
-  --version 2.44.0 \
+  --version 2.44.1 \
   --namespace devhub-tunnel
 ```
 

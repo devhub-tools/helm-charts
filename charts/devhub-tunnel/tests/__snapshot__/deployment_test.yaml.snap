@@ -7,8 +7,8 @@ should bind the role to the service account:
         app.kubernetes.io/instance: devhub-tunnel
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub-tunnel
-        app.kubernetes.io/version: v2.44.0
-        helm.sh/chart: devhub-tunnel-2.44.0
+        app.kubernetes.io/version: v2.44.1
+        helm.sh/chart: devhub-tunnel-2.44.1
       name: devhub-tunnel
     roleRef:
       apiGroup: rbac.authorization.k8s.io
@@ -26,8 +26,8 @@ should give runner jobs a Service to call when Kubernetes access is on:
         app.kubernetes.io/instance: devhub-tunnel
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub-tunnel
-        app.kubernetes.io/version: v2.44.0
-        helm.sh/chart: devhub-tunnel-2.44.0
+        app.kubernetes.io/version: v2.44.1
+        helm.sh/chart: devhub-tunnel-2.44.1
       name: devhub-tunnel
     spec:
       ports:
@@ -48,8 +48,8 @@ should render deployment with custom values:
         app.kubernetes.io/instance: devhub-tunnel
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub-tunnel
-        app.kubernetes.io/version: v2.44.0
-        helm.sh/chart: devhub-tunnel-2.44.0
+        app.kubernetes.io/version: v2.44.1
+        helm.sh/chart: devhub-tunnel-2.44.1
       name: devhub-tunnel
     spec:
       replicas: 1
@@ -72,7 +72,7 @@ should render deployment with custom values:
             - env:
                 - name: DEVHUB_TUNNEL_CONFIG
                   value: /etc/devhub-tunnel/config.json
-              image: ghcr.io/devhub-tools/devhub-tunnel:v2.44.0
+              image: ghcr.io/devhub-tools/devhub-tunnel:v2.44.1
               imagePullPolicy: IfNotPresent
               name: devhub-tunnel
               ports:
@@ -122,8 +122,8 @@ should render deployment with default values:
         app.kubernetes.io/instance: devhub-tunnel
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub-tunnel
-        app.kubernetes.io/version: v2.44.0
-        helm.sh/chart: devhub-tunnel-2.44.0
+        app.kubernetes.io/version: v2.44.1
+        helm.sh/chart: devhub-tunnel-2.44.1
       name: devhub-tunnel
     spec:
       replicas: 1
@@ -144,7 +144,7 @@ should render deployment with default values:
             - env:
                 - name: DEVHUB_TUNNEL_CONFIG
                   value: /etc/devhub-tunnel/config.json
-              image: ghcr.io/devhub-tools/devhub-tunnel:v2.44.0
+              image: ghcr.io/devhub-tools/devhub-tunnel:v2.44.1
               imagePullPolicy: IfNotPresent
               name: devhub-tunnel
               ports:
@@ -183,8 +183,8 @@ should render the role:
         app.kubernetes.io/instance: devhub-tunnel
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub-tunnel
-        app.kubernetes.io/version: v2.44.0
-        helm.sh/chart: devhub-tunnel-2.44.0
+        app.kubernetes.io/version: v2.44.1
+        helm.sh/chart: devhub-tunnel-2.44.1
       name: devhub-tunnel
     rules:
       - apiGroups:
@@ -227,6 +227,6 @@ should render the service account:
         app.kubernetes.io/instance: devhub-tunnel
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub-tunnel
-        app.kubernetes.io/version: v2.44.0
-        helm.sh/chart: devhub-tunnel-2.44.0
+        app.kubernetes.io/version: v2.44.1
+        helm.sh/chart: devhub-tunnel-2.44.1
       name: devhub-tunnel
