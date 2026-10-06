@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devhub-tunnel
+  labels:
+    {{- include "DevhubTunnel.labels" . | nindent 4 }}
+spec:
+  {{- /* Devhub accepts one instance of a Tunnel at a time, so this is not a value. */}}
+  replicas: 1
+  revisionHistoryLimit: 0
+  {{- /* The old pod leaves before the new one starts. A second pod would be refused until the first let go. */}}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "DevhubTunnel.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "DevhubTunnel.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: devhub-tunnel
+      {{- if not .Values.kubernetes.enabled }}
+      automountServiceAccountToken: false
+      {{- end }}
+      {{- /* The Tunnel lets open streams finish for up to 25 seconds after SIGTERM. */}}
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: devhub-tunnel
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.kubernetes.enabled }}
+          ports:
+            - name: callback
+              containerPort: 8080
+              protocol: TCP
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: DEVHUB_TUNNEL_CONFIG
+              value: /etc/devhub-tunnel/config.json
+            {{- if not .Values.kubernetes.enabled }}
+            - name: DEVHUB_TUNNEL_KUBERNETES
+              value: "false"
+            {{- end }}
+            {{- if .Values.caSecret.name }}
+            - name: DEVHUB_TUNNEL_CA_FILE
+              value: /etc/devhub-tunnel-ca/{{ .Values.caSecret.key }}
+            {{- end }}
+          volumeMounts:
+          - name: config
+            mountPath: "/etc/devhub-tunnel"
+            readOnly: true
+          {{- if .Values.caSecret.name }}
+          - name: ca
+            mountPath: "/etc/devhub-tunnel-ca"
+            readOnly: true
+          {{- end }}
+      volumes:
+      - name: config
+        secret:
+          secretName: {{ .Values.config.existingSecret }}
+      {{- with .Values.caSecret.name }}
+      - name: ca
+        secret:
+          secretName: {{ . }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

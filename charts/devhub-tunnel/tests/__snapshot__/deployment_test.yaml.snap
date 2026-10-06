@@ -1,0 +1,232 @@
+should bind the role to the service account:
+  1: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub-tunnel
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub-tunnel
+        app.kubernetes.io/version: v2.44.0
+        helm.sh/chart: devhub-tunnel-2.44.0
+      name: devhub-tunnel
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: devhub-tunnel
+    subjects:
+      - kind: ServiceAccount
+        name: devhub-tunnel
+should give runner jobs a Service to call when Kubernetes access is on:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub-tunnel
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub-tunnel
+        app.kubernetes.io/version: v2.44.0
+        helm.sh/chart: devhub-tunnel-2.44.0
+      name: devhub-tunnel
+    spec:
+      ports:
+        - name: callback
+          port: 80
+          protocol: TCP
+          targetPort: callback
+      selector:
+        app.kubernetes.io/instance: devhub-tunnel
+        app.kubernetes.io/name: devhub-tunnel
+      type: ClusterIP
+should render deployment with custom values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub-tunnel
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub-tunnel
+        app.kubernetes.io/version: v2.44.0
+        helm.sh/chart: devhub-tunnel-2.44.0
+      name: devhub-tunnel
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 0
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: devhub-tunnel
+          app.kubernetes.io/name: devhub-tunnel
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            example.com/team: platform
+          labels:
+            app.kubernetes.io/instance: devhub-tunnel
+            app.kubernetes.io/name: devhub-tunnel
+        spec:
+          containers:
+            - env:
+                - name: DEVHUB_TUNNEL_CONFIG
+                  value: /etc/devhub-tunnel/config.json
+              image: ghcr.io/devhub-tools/devhub-tunnel:v2.44.0
+              imagePullPolicy: IfNotPresent
+              name: devhub-tunnel
+              ports:
+                - containerPort: 8080
+                  name: callback
+                  protocol: TCP
+              resources:
+                limits:
+                  memory: 64Mi
+                requests:
+                  cpu: 20m
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsGroup: 65532
+                runAsNonRoot: true
+                runAsUser: 65532
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /etc/devhub-tunnel
+                  name: config
+                  readOnly: true
+          nodeSelector:
+            kubernetes.io/arch: amd64
+          securityContext: {}
+          serviceAccountName: devhub-tunnel
+          terminationGracePeriodSeconds: 30
+          tolerations:
+            - effect: NoSchedule
+              key: key
+              operator: Exists
+              value: value
+          volumes:
+            - name: config
+              secret:
+                secretName: tunnel-config
+should render deployment with default values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub-tunnel
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub-tunnel
+        app.kubernetes.io/version: v2.44.0
+        helm.sh/chart: devhub-tunnel-2.44.0
+      name: devhub-tunnel
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 0
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: devhub-tunnel
+          app.kubernetes.io/name: devhub-tunnel
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/instance: devhub-tunnel
+            app.kubernetes.io/name: devhub-tunnel
+        spec:
+          containers:
+            - env:
+                - name: DEVHUB_TUNNEL_CONFIG
+                  value: /etc/devhub-tunnel/config.json
+              image: ghcr.io/devhub-tools/devhub-tunnel:v2.44.0
+              imagePullPolicy: IfNotPresent
+              name: devhub-tunnel
+              ports:
+                - containerPort: 8080
+                  name: callback
+                  protocol: TCP
+              resources: {}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsGroup: 65532
+                runAsNonRoot: true
+                runAsUser: 65532
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /etc/devhub-tunnel
+                  name: config
+                  readOnly: true
+          securityContext: {}
+          serviceAccountName: devhub-tunnel
+          terminationGracePeriodSeconds: 30
+          volumes:
+            - name: config
+              secret:
+                secretName: devhub-tunnel-config
+should render the role:
+  1: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub-tunnel
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub-tunnel
+        app.kubernetes.io/version: v2.44.0
+        helm.sh/chart: devhub-tunnel-2.44.0
+      name: devhub-tunnel
+    rules:
+      - apiGroups:
+          - batch
+        resources:
+          - jobs
+        verbs:
+          - create
+          - delete
+          - get
+          - list
+      - apiGroups:
+          - ""
+        resources:
+          - pods
+        verbs:
+          - get
+          - list
+      - apiGroups:
+          - ""
+        resources:
+          - pods/log
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resources:
+          - secrets
+        verbs:
+          - create
+          - update
+          - get
+          - delete
+should render the service account:
+  1: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devhub-tunnel
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: devhub-tunnel
+        app.kubernetes.io/version: v2.44.0
+        helm.sh/chart: devhub-tunnel-2.44.0
+      name: devhub-tunnel

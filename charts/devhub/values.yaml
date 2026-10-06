@@ -5,9 +5,6 @@
 replicaCount: 1
 
 devhub:
-  # -- Set to true if setting up an agent.
-  agent: false
-
   # -- Secret name that contains the application config. See full docs for required keys.
   secret: config
 
@@ -23,6 +20,8 @@ devhub:
   database:
     # -- Secret name that contains the database connection details. Must have `host`, `user`, and `password`. May contain `dbname` and `port` (defaults to 5432).
     secret: postgres-app
+    # -- Number of connections each pod opens to Devhub's own database. Total connections are `replicaCount` x `poolSize` and must stay under the database's `max_connections`.
+    poolSize: 20
     ssl:
       # -- Use `require` or `verify` to enable SSL. Disabled by default.
       mode: disabled

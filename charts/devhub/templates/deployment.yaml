@@ -60,6 +60,17 @@ spec:
               value: {{ .Values.image.tag | default .Chart.AppVersion }}
             - name: DB_SSL
               value: {{ .Values.devhub.database.ssl.mode | quote }}
+            {{- /* A POOL_SIZE under extraEnvVars wins; rendering both is a duplicate env var. */}}
+            {{- $poolSizeOverridden := false }}
+            {{- range .Values.extraEnvVars }}
+            {{- if eq .name "POOL_SIZE" }}
+            {{- $poolSizeOverridden = true }}
+            {{- end }}
+            {{- end }}
+            {{- if not $poolSizeOverridden }}
+            - name: POOL_SIZE
+              value: {{ .Values.devhub.database.poolSize | default 20 | quote }}
+            {{- end }}
             {{- with .Values.devhub.auth.emailHeader }}
             - name: AUTH_EMAIL_HEADER
               value: {{ . | quote }}
@@ -76,10 +87,6 @@ spec:
             - name: PROXY_INSTRUCTIONS
               value: {{ . | quote }}
             {{- end }}
-            {{- if .Values.devhub.agent }}
-            - name: AGENT
-              value: "true"
-            {{- end }}
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -92,7 +99,6 @@ spec:
           - name: config
             mountPath: "/etc/secrets/app"
             readOnly: true
-          {{- if not .Values.devhub.agent }}
           {{- with .Values.devhub.database.secret }}
           - name: database-config
             mountPath: "/etc/secrets/db"
@@ -108,13 +114,11 @@ spec:
             mountPath: "/etc/secrets/client-cert"
             readOnly: true
           {{- end }}
-          {{- end }}
           {{- with .Values.devhub.proxy.tls.secret }}
           - name: proxy-tls
             mountPath: "/etc/secrets/proxy"
             readOnly: true
           {{- end }}
-      {{- if not .Values.devhub.agent }}
       initContainers:
         - name: database-ready
           securityContext:
@@ -142,12 +146,10 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           env: *env
           volumeMounts: *volumeMounts
-      {{- end }}
       volumes:
       - name: config
         secret:
           secretName: {{ .Values.devhub.secret }}
-      {{- if not .Values.devhub.agent }}
       {{- with .Values.devhub.database.secret }}
       - name: database-config
         secret:
@@ -162,7 +164,6 @@ spec:
       - name: database-client-cert
         secret:
           secretName: {{ . }}
-      {{- end }}
       {{- end }}
       {{- with .Values.devhub.proxy.tls.secret }}
       - name: proxy-tls

@@ -1,0 +1,240 @@
+suite: Deployment
+templates:
+  - deployment.yaml
+  - serviceaccount.yaml
+  - role.yaml
+  - rolebinding.yaml
+  - service.yaml
+release:
+  name: devhub-tunnel
+  namespace: devhub-tunnel
+
+tests:
+  - it: should render deployment with default values
+    template: deployment.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render deployment with custom values
+    template: deployment.yaml
+    set:
+      config:
+        existingSecret: tunnel-config
+      podAnnotations:
+        example.com/team: platform
+
+      resources:
+        requests:
+          cpu: 20m
+        limits:
+          memory: 64Mi
+
+      nodeSelector:
+        kubernetes.io/arch: amd64
+
+      tolerations:
+        - key: key
+          operator: Exists
+          value: value
+          effect: NoSchedule
+
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should mount the config secret read only
+    template: deployment.yaml
+    set:
+      config:
+        existingSecret: tunnel-config
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: config
+            secret:
+              secretName: tunnel-config
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: config
+            mountPath: /etc/devhub-tunnel
+            readOnly: true
+
+  - it: should run one pod and stop it before starting its replacement
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.strategy
+          value:
+            type: Recreate
+      - equal:
+          path: spec.template.spec.terminationGracePeriodSeconds
+          value: 30
+
+  - it: should not let the number of pods be raised
+    template: deployment.yaml
+    set:
+      replicaCount: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: should render the service account
+    template: serviceaccount.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render the role
+    template: role.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should bind the role to the service account
+    template: rolebinding.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should use the service account for Kubernetes access by default
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.automountServiceAccountToken
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DEVHUB_TUNNEL_KUBERNETES
+          any: true
+
+  - it: should omit the role when Kubernetes access is off
+    set:
+      kubernetes:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+        template: role.yaml
+      - hasDocuments:
+          count: 0
+        template: rolebinding.yaml
+      - hasDocuments:
+          count: 1
+        template: serviceaccount.yaml
+
+  - it: should turn the Kubernetes target off when Kubernetes access is off
+    template: deployment.yaml
+    set:
+      kubernetes:
+        enabled: false
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DEVHUB_TUNNEL_KUBERNETES
+            value: "false"
+      - equal:
+          path: spec.template.spec.automountServiceAccountToken
+          value: false
+
+  - it: should give runner jobs a Service to call when Kubernetes access is on
+    template: service.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: devhub-tunnel
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports
+          value:
+            - name: callback
+              port: 80
+              targetPort: callback
+              protocol: TCP
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/name: devhub-tunnel
+            app.kubernetes.io/instance: devhub-tunnel
+      - matchSnapshot: {}
+
+  - it: should declare the callback port when Kubernetes access is on
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].ports
+          value:
+            - name: callback
+              containerPort: 8080
+              protocol: TCP
+
+  - it: should omit the Service and the callback port when Kubernetes access is off
+    set:
+      kubernetes:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+        template: service.yaml
+      - notExists:
+          path: spec.template.spec.containers[0].ports
+        template: deployment.yaml
+
+  - it: should not mount a CA by default
+    template: deployment.yaml
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DEVHUB_TUNNEL_CA_FILE
+          any: true
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: ca
+          any: true
+
+  - it: should mount the CA secret and point the Tunnel at it
+    template: deployment.yaml
+    set:
+      caSecret:
+        name: devhub-ca
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: ca
+            secret:
+              secretName: devhub-ca
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: ca
+            mountPath: /etc/devhub-tunnel-ca
+            readOnly: true
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DEVHUB_TUNNEL_CA_FILE
+            value: /etc/devhub-tunnel-ca/ca.crt
+
+  - it: should use the configured CA key
+    template: deployment.yaml
+    set:
+      caSecret:
+        name: devhub-ca
+        key: root.pem
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DEVHUB_TUNNEL_CA_FILE
+            value: /etc/devhub-tunnel-ca/root.pem

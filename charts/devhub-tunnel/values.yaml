@@ -1,0 +1,53 @@
+# Default values for the Devhub Tunnel.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+config:
+  # -- Secret name that contains the Tunnel config downloaded from Settings > Tunnels. Must have `config.json`.
+  existingSecret: devhub-tunnel-config
+
+kubernetes:
+  # -- Lets Devhub reach the Kubernetes API of this cluster through the Tunnel's service account, which TerraDesk needs to run jobs. Set to false if the Tunnel is only used to reach databases.
+  enabled: true
+
+caSecret:
+  # -- Secret name that contains a CA cert to trust when connecting to Devhub. Only needed if Devhub is served under a private certificate authority.
+  name: ""
+  # -- Key in the secret that holds the PEM encoded CA cert.
+  key: ca.crt
+
+image:
+  repository: ghcr.io/devhub-tools/devhub-tunnel
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+
+serviceAccount:
+  # Annotations to add to the service account
+  annotations: {}
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

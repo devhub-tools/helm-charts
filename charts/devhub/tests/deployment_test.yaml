@@ -49,10 +49,71 @@ tests:
     asserts:
       - matchSnapshot: {}
 
-  - it: should render deployment with agent
+  - it: should ignore the removed devhub.agent value
     set:
       devhub:
         agent: true
-        secret: devhub-config
     asserts:
-      - matchSnapshot: {}
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: AGENT
+          any: true
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 2
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: database-config
+          any: true
+
+  - it: should set POOL_SIZE to 20 by default
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: POOL_SIZE
+            value: "20"
+
+  - it: should set POOL_SIZE from devhub.database.poolSize
+    set:
+      devhub:
+        database:
+          poolSize: 5
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: POOL_SIZE
+            value: "5"
+
+  - it: should fall back to 20 when devhub.database.poolSize is unset
+    set:
+      devhub:
+        database:
+          poolSize: null
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: POOL_SIZE
+            value: "20"
+
+  - it: should not duplicate POOL_SIZE set in extraEnvVars
+    set:
+      extraEnvVars:
+        - name: POOL_SIZE
+          value: "40"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: POOL_SIZE
+          any: true
+          count: 1
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: POOL_SIZE
+            value: "40"

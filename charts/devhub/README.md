@@ -1,6 +1,6 @@
 # devhub
 
-![Version: 2.43.0](https://img.shields.io/badge/Version-2.43.0-informational?style=flag) ![AppVersion: v2.43.0](https://img.shields.io/badge/AppVersion-v2.43.0-informational?style=flag)
+![Version: 2.44.0](https://img.shields.io/badge/Version-2.44.0-informational?style=flag) ![AppVersion: v2.44.0](https://img.shields.io/badge/AppVersion-v2.44.0-informational?style=flag)
 
 Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@querydesk.com if you would like additional methods supported.
 
@@ -74,7 +74,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set postgresql.enabled=true \
-      --version 2.43.0 \
+      --version 2.44.0 \
       --namespace devhub \
       --create-namespace
     ```
@@ -107,10 +107,34 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     ```bash
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 2.43.0 \
+      --version 2.44.0 \
       --namespace devhub \
       --create-namespace
     ```
+
+### Database connection pool
+
+`devhub.database.poolSize` is the number of connections each pod opens to Devhub's own database. It defaults to 20.
+
+A pool that is too small shows up in the logs as requests dropped while waiting for a connection:
+
+```
+database connection error (queue_timeout): [Elixir.DevhubWeb.Endpoint] connection not available and request was dropped from queue after 2000ms
+```
+
+If you see that line, raise the pool size:
+
+```bash
+helm upgrade devhub devhub/devhub \
+  --reuse-values \
+  --set devhub.database.poolSize=40 \
+  --namespace devhub
+```
+
+Every pod opens its own pool, so the total is `replicaCount` x `poolSize`, and it must stay under the database's
+`max_connections`. The pre-configured CloudNativePG cluster uses Postgres's default of 100.
+
+A `POOL_SIZE` already set under `extraEnvVars` keeps working and takes precedence over `devhub.database.poolSize`.
 
 ### Configure OIDC
 
@@ -147,43 +171,19 @@ provider: a user who is no longer in a group loses the matching role the next ti
 Devhub only receives a user's name if `profile` is among the requested scopes, so set `OIDC_SCOPES` to
 `openid email profile` if you want names rather than just email addresses.
 
-### Using Agents
+### Using Tunnels
 
-Agents are a secondary install that connect to the main instance. This allows your main instance to connect into other networks.
-
-1. Create an agent in your main instance and download the config: https://devhub.example.com/settings/agents
-
-1. Create a secret with the provided agent config
-
-    ```yaml
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: agent-config
-      namespace: devhub
-    data:
-      agent-config.json: ... # the agent config you downloaded
-    ```
-
-1. Install the helm chart inside your destination network
-
-    ```bash
-    helm install devhub-agent devhub/devhub \
-      --set devhub.host=devhub.example.com \
-      --set devhub.agent=true \
-      --set devhub.secret=agent-config \
-      --version 2.43.0 \
-      --namespace devhub
-    ```
+A Tunnel lets Devhub reach databases and Kubernetes clusters in networks it cannot connect to directly.
+It is installed in the destination network with its own chart, [devhub-tunnel](../devhub-tunnel/README.md).
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| devhub.agent | bool | `false` | Set to true if setting up an agent. |
 | devhub.auth.emailHeader | string | `""` | Allows authenticating users with an auth proxy that forwards a header with the users email, for example X-Forwarded-Email. If set this is the only way users can login. |
 | devhub.auth.groupsHeader | string | `""` | If authenticating with an auth proxy you can configure a header that can be used to add roles to the user. |
+| devhub.database.poolSize | int | `20` | Number of connections each pod opens to Devhub's own database. Total connections are `replicaCount` x `poolSize` and must stay under the database's `max_connections`. |
 | devhub.database.secret | string | `"postgres-app"` | Secret name that contains the database connection details. Must have `host`, `user`, and `password`. May contain `dbname` and `port` (defaults to 5432). |
 | devhub.database.ssl.caSecret | string | `"postgres-ca"` | Secret name that contains the database CA cert. Must have `ca.crt`. |
 | devhub.database.ssl.clientCertSecret | string | `""` | Secret name that contains the database client cert. Must have both `tls.crt` and `tls.key`. |

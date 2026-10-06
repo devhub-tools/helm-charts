@@ -1,6 +1,6 @@
 apiVersion: v2
-name: devhub
-description: Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@querydesk.com if you would like additional methods supported.
+name: devhub-tunnel
+description: Runs a Devhub Tunnel, which lets Devhub reach databases and the Kubernetes API in a network it cannot connect to directly. The Tunnel only makes outbound connections.
 home: https://querydesk.com
 version: 2.44.0
 appVersion: v2.44.0

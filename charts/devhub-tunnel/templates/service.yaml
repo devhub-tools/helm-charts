@@ -1,0 +1,18 @@
+{{- if .Values.kubernetes.enabled -}}
+{{- /* The name and port are what Devhub tells runner jobs to call, so they are not values. */}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: devhub-tunnel
+  labels:
+    {{- include "DevhubTunnel.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: callback
+      port: 80
+      targetPort: callback
+      protocol: TCP
+  selector:
+    {{- include "DevhubTunnel.selectorLabels" . | nindent 4 }}
+{{- end }}

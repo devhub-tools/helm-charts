@@ -115,6 +115,30 @@
       --create-namespace
     ```
 
+### Database connection pool
+
+`devhub.database.poolSize` is the number of connections each pod opens to Devhub's own database. It defaults to 20.
+
+A pool that is too small shows up in the logs as requests dropped while waiting for a connection:
+
+```
+database connection error (queue_timeout): [Elixir.DevhubWeb.Endpoint] connection not available and request was dropped from queue after 2000ms
+```
+
+If you see that line, raise the pool size:
+
+```bash
+helm upgrade devhub devhub/devhub \
+  --reuse-values \
+  --set devhub.database.poolSize=40 \
+  --namespace devhub
+```
+
+Every pod opens its own pool, so the total is `replicaCount` x `poolSize`, and it must stay under the database's
+`max_connections`. The pre-configured CloudNativePG cluster uses Postgres's default of 100.
+
+A `POOL_SIZE` already set under `extraEnvVars` keeps working and takes precedence over `devhub.database.poolSize`.
+
 ### Configure OIDC
 
 OIDC can be configured in the app under Settings, or declaratively through the chart.
@@ -150,34 +174,10 @@ provider: a user who is no longer in a group loses the matching role the next ti
 Devhub only receives a user's name if `profile` is among the requested scopes, so set `OIDC_SCOPES` to
 `openid email profile` if you want names rather than just email addresses.
 
-### Using Agents
+### Using Tunnels
 
-Agents are a secondary install that connect to the main instance. This allows your main instance to connect into other networks.
-
-1. Create an agent in your main instance and download the config: https://devhub.example.com/settings/agents
-
-1. Create a secret with the provided agent config
-
-    ```yaml
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: agent-config
-      namespace: devhub
-    data:
-      agent-config.json: ... # the agent config you downloaded
-    ```
-
-1. Install the helm chart inside your destination network
-
-    ```bash
-    helm install devhub-agent devhub/devhub \
-      --set devhub.host=devhub.example.com \
-      --set devhub.agent=true \
-      --set devhub.secret=agent-config \
-      --version {{ template "chart.version" . }} \
-      --namespace devhub
-    ```
+A Tunnel lets Devhub reach databases and Kubernetes clusters in networks it cannot connect to directly.
+It is installed in the destination network with its own chart, [devhub-tunnel](../devhub-tunnel/README.md).
 
 {{ template "chart.valuesSection" . }}
 

@@ -1,84 +1,3 @@
-should render deployment with agent:
-  1: |
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      labels:
-        app.kubernetes.io/instance: devhub
-        app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.43.0
-        helm.sh/chart: devhub-2.43.0
-      name: devhub
-    spec:
-      replicas: 1
-      revisionHistoryLimit: 0
-      selector:
-        matchLabels:
-          app.kubernetes.io/instance: devhub
-          app.kubernetes.io/name: devhub
-      template:
-        metadata:
-          labels:
-            app.kubernetes.io/instance: devhub
-            app.kubernetes.io/name: devhub
-        spec:
-          containers:
-            - env:
-                - name: APP_HOST
-                  value: devhub.example.com
-                - name: APP_VERSION
-                  value: v2.43.0
-                - name: DB_SSL
-                  value: disabled
-                - name: AGENT
-                  value: "true"
-                - name: POD_NAMESPACE
-                  valueFrom:
-                    fieldRef:
-                      fieldPath: metadata.namespace
-              image: ghcr.io/devhub-tools/devhub:v2.43.0
-              imagePullPolicy: IfNotPresent
-              livenessProbe:
-                httpGet:
-                  path: /_health
-                  port: http
-                initialDelaySeconds: 60
-                periodSeconds: 10
-              name: devhub
-              ports:
-                - containerPort: 4000
-                  name: http
-                  protocol: TCP
-                - containerPort: 54320
-                  name: postgres-proxy
-                  protocol: TCP
-              readinessProbe:
-                httpGet:
-                  path: /_health
-                  port: http
-                initialDelaySeconds: 5
-                periodSeconds: 5
-              resources: {}
-              securityContext:
-                allowPrivilegeEscalation: false
-                capabilities:
-                  drop:
-                    - ALL
-                runAsNonRoot: true
-                runAsUser: 1000
-                seccompProfile:
-                  type: RuntimeDefault
-              volumeMounts:
-                - mountPath: /etc/secrets/app
-                  name: config
-                  readOnly: true
-          securityContext: {}
-          serviceAccountName: devhub
-          volumes:
-            - name: config
-              secret:
-                secretName: devhub-config
 should render deployment with custom values:
   1: |
     apiVersion: apps/v1
@@ -88,8 +7,8 @@ should render deployment with custom values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.43.0
-        helm.sh/chart: devhub-2.43.0
+        app.kubernetes.io/version: v2.44.0
+        helm.sh/chart: devhub-2.44.0
       name: devhub
     spec:
       replicas: 1
@@ -109,9 +28,11 @@ should render deployment with custom values:
                 - name: APP_HOST
                   value: devhub.example.com
                 - name: APP_VERSION
-                  value: v2.43.0
+                  value: v2.44.0
                 - name: DB_SSL
                   value: verify
+                - name: POOL_SIZE
+                  value: "20"
                 - name: AUTH_EMAIL_HEADER
                   value: X-Forwarded-Email
                 - name: AUTH_GROUPS_HEADER
@@ -124,7 +45,7 @@ should render deployment with custom values:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-              image: ghcr.io/devhub-tools/devhub:v2.43.0
+              image: ghcr.io/devhub-tools/devhub:v2.44.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
@@ -185,9 +106,11 @@ should render deployment with custom values:
                 - name: APP_HOST
                   value: devhub.example.com
                 - name: APP_VERSION
-                  value: v2.43.0
+                  value: v2.44.0
                 - name: DB_SSL
                   value: verify
+                - name: POOL_SIZE
+                  value: "20"
                 - name: AUTH_EMAIL_HEADER
                   value: X-Forwarded-Email
                 - name: AUTH_GROUPS_HEADER
@@ -200,7 +123,7 @@ should render deployment with custom values:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-              image: ghcr.io/devhub-tools/devhub:v2.43.0
+              image: ghcr.io/devhub-tools/devhub:v2.44.0
               imagePullPolicy: IfNotPresent
               name: database-ready
               resources:
@@ -241,9 +164,11 @@ should render deployment with custom values:
                 - name: APP_HOST
                   value: devhub.example.com
                 - name: APP_VERSION
-                  value: v2.43.0
+                  value: v2.44.0
                 - name: DB_SSL
                   value: verify
+                - name: POOL_SIZE
+                  value: "20"
                 - name: AUTH_EMAIL_HEADER
                   value: X-Forwarded-Email
                 - name: AUTH_GROUPS_HEADER
@@ -256,7 +181,7 @@ should render deployment with custom values:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-              image: ghcr.io/devhub-tools/devhub:v2.43.0
+              image: ghcr.io/devhub-tools/devhub:v2.44.0
               imagePullPolicy: IfNotPresent
               name: devhub-migrations
               resources:
@@ -321,8 +246,8 @@ should render deployment with default values:
         app.kubernetes.io/instance: devhub
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: devhub
-        app.kubernetes.io/version: v2.43.0
-        helm.sh/chart: devhub-2.43.0
+        app.kubernetes.io/version: v2.44.0
+        helm.sh/chart: devhub-2.44.0
       name: devhub
     spec:
       replicas: 1
@@ -342,14 +267,16 @@ should render deployment with default values:
                 - name: APP_HOST
                   value: devhub.example.com
                 - name: APP_VERSION
-                  value: v2.43.0
+                  value: v2.44.0
                 - name: DB_SSL
                   value: disabled
+                - name: POOL_SIZE
+                  value: "20"
                 - name: POD_NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-              image: ghcr.io/devhub-tools/devhub:v2.43.0
+              image: ghcr.io/devhub-tools/devhub:v2.44.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
@@ -400,14 +327,16 @@ should render deployment with default values:
                 - name: APP_HOST
                   value: devhub.example.com
                 - name: APP_VERSION
-                  value: v2.43.0
+                  value: v2.44.0
                 - name: DB_SSL
                   value: disabled
+                - name: POOL_SIZE
+                  value: "20"
                 - name: POD_NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-              image: ghcr.io/devhub-tools/devhub:v2.43.0
+              image: ghcr.io/devhub-tools/devhub:v2.44.0
               imagePullPolicy: IfNotPresent
               name: database-ready
               resources: {}
@@ -438,14 +367,16 @@ should render deployment with default values:
                 - name: APP_HOST
                   value: devhub.example.com
                 - name: APP_VERSION
-                  value: v2.43.0
+                  value: v2.44.0
                 - name: DB_SSL
                   value: disabled
+                - name: POOL_SIZE
+                  value: "20"
                 - name: POD_NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-              image: ghcr.io/devhub-tools/devhub:v2.43.0
+              image: ghcr.io/devhub-tools/devhub:v2.44.0
               imagePullPolicy: IfNotPresent
               name: devhub-migrations
               resources: {}
