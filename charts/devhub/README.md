@@ -1,6 +1,6 @@
 # devhub
 
-![Version: 3.1.0](https://img.shields.io/badge/Version-3.1.0-informational?style=flag) ![AppVersion: v3.1.0](https://img.shields.io/badge/AppVersion-v3.1.0-informational?style=flag)
+![Version: 3.1.1](https://img.shields.io/badge/Version-3.1.1-informational?style=flag) ![AppVersion: v3.1.1](https://img.shields.io/badge/AppVersion-v3.1.1-informational?style=flag)
 
 Instructions for running self hosted install of Devhub/QueryDesk. Currently only k8s install is supported, reach out to support@querydesk.com if you would like additional methods supported.
 
@@ -74,7 +74,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
       --set postgresql.enabled=true \
-      --version 3.1.0 \
+      --version 3.1.1 \
       --namespace devhub \
       --create-namespace
     ```
@@ -107,7 +107,7 @@ Instructions for running self hosted install of Devhub/QueryDesk. Currently only
     ```bash
     helm install devhub devhub/devhub \
       --set devhub.host=devhub.example.com \
-      --version 3.1.0 \
+      --version 3.1.1 \
       --namespace devhub \
       --create-namespace
     ```
